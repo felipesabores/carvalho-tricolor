@@ -605,12 +605,6 @@ body {
 }
 .mini-crest img { width: 22px; height: 22px; object-fit: contain; }
 .flu-mini { background: #fff; border-color: #f0c0c8; }
-.fla-bg         { background: #CC0000; }
-.vasco-bg       { background: #000; }
-.fluminense-opp-bg { background: #000; }
-.palmeiras-bg   { background: #006630; }
-.corinthians-bg { background: #000; }
-.atletico-bg    { background: #000; color: #fff; }
 
 .vs-mini { font-size: 12px; font-weight: 800; color: var(--c-surface2); }
 .match-item-meta { display: flex; flex-direction: column; gap: 1px; }
