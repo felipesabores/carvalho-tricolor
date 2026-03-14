@@ -80,4 +80,8 @@ Criado em março de 2026, temporada em que o Flu briga pelo Carioca e se prepara
 
 *Aqui é Flu!* 🤍❤️💚
 
+---
+
+Desenvolvido por **Felipe Carvalho** · Desenvolvedor Full-stack
+
 </div>
