@@ -105,8 +105,8 @@
         </div>
         <div class="match-competition">
           <img src="https://upload.wikimedia.org/wikipedia/pt/thumb/5/5d/Campeonato_Carioca_logo.png/200px-Campeonato_Carioca_logo.png"
-               alt="Carioca" class="competition-logo" onerror="this.style.display='none'" />
-          <span>Campeonato Carioca 2026 · Semifinal</span>
+               alt="Liga" class="competition-logo" onerror="this.style.display='none'" />
+          <span id="next-match-comp">Carregando...</span>
         </div>
         <div class="match-teams">
           <div class="team-col">
@@ -119,26 +119,26 @@
           <div class="vs-col">
             <span class="vs-label">VS</span>
             <div class="match-info-center">
-              <span class="match-date">DOM, 15/03</span>
-              <span class="match-time">16:00</span>
+              <span class="match-date" id="next-match-date">—</span>
+              <span class="match-time" id="next-match-time">—:—</span>
             </div>
           </div>
           <div class="team-col">
             <div class="team-crest">
-              <img src="https://r2.thesportsdb.com/images/media/team/badge/syptwx1473538074.png/small"
-                   alt="Flamengo" />
+              <img id="next-opp-badge" src="https://r2.thesportsdb.com/images/media/team/badge/syptwx1473538074.png/small"
+                   alt="Adversário" />
             </div>
-            <span class="team-name">Flamengo</span>
+            <span class="team-name" id="next-opp-name">—</span>
           </div>
         </div>
-        <div class="match-venue">
+        <div class="match-venue" id="next-match-venue">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E182C" stroke-width="2">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
             <circle cx="12" cy="10" r="3"/>
           </svg>
-          Maracanã · Rio de Janeiro
+          Carregando...
         </div>
-        <button class="btn-primary btn-block" onclick="goTo('realtime')">
+        <button id="next-match-alert-btn" class="btn-primary btn-block" onclick="goTo('realtime')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -203,6 +203,14 @@
         </div>
       </section>
 
+      <!-- LAST RESULTS -->
+      <section class="section hidden" id="last-results-section">
+        <div class="section-header">
+          <h2 class="section-title">Últimos Resultados</h2>
+        </div>
+        <div id="last-results-list"></div>
+      </section>
+
       <div style="height: 20px"></div>
     </main>
 
@@ -259,6 +267,7 @@
     </header>
 
     <main class="screen-content has-header has-bottom-nav">
+      <div id="calendar-content">
 
       <!-- MONTH: MARCH -->
       <div class="calendar-month-header">
@@ -430,6 +439,7 @@
       </div>
 
       <div style="height: 20px"></div>
+      </div><!-- end #calendar-content -->
     </main>
 
     <nav class="bottom-nav">
@@ -523,17 +533,17 @@
       <!-- STATS BAR -->
       <div class="quick-stats">
         <div class="stat-item">
-          <span class="stat-val">6</span>
+          <span class="stat-val" id="stat-shots">6</span>
           <span class="stat-label">Finalizações</span>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-          <span class="stat-val">58%</span>
+          <span class="stat-val" id="stat-possession">58%</span>
           <span class="stat-label">Posse de Bola</span>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-          <span class="stat-val">3</span>
+          <span class="stat-val" id="stat-corners">3</span>
           <span class="stat-label">Escanteios</span>
         </div>
       </div>
@@ -542,7 +552,7 @@
       <div class="timeline-section">
         <h2 class="timeline-title">Lances da Partida</h2>
 
-        <div class="timeline">
+        <div class="timeline" id="live-timeline">
 
           <div class="timeline-item goal-item">
             <div class="timeline-time">67'</div>
