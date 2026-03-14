@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="carvalho.png" alt="Família Carvalho" width="120" />
+</div>
+
 # 🤍❤️💚 Carvalho Tricolor
 
 > *"Nenhum Passo Atrás."*
