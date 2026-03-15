@@ -309,12 +309,26 @@ function selectEvent(eventId) {
   goTo('realtime');
 }
 
-// ── REALTIME ─────────────────────────────
+/* ── REALTIME ───────────────────────────── */
 const LIVE_STATUSES = ['1H','2H','HT','ET','PEN','Live','In Progress'];
 let livePollingInterval = null;
+let lastKnownFluScore = null;
+let lastTimelineLength = 0;
+let isPageVisible = true;
+
+// Smart Polling Pause
+document.addEventListener('visibilitychange', () => {
+  isPageVisible = !document.hidden;
+  if (isPageVisible && currentScreen === 'realtime' && liveEventId) {
+    // Immediately fetch when coming back from background
+    loadLiveData(liveEventId);
+  }
+});
 
 function stopLivePolling() {
   if (livePollingInterval) { clearInterval(livePollingInterval); livePollingInterval = null; }
+  lastKnownFluScore = null;
+  lastTimelineLength = 0;
 }
 
 async function loadRealtimeScreen() {
@@ -332,24 +346,46 @@ async function loadRealtimeScreen() {
   stopLivePolling();
   if (isLive) {
     livePollingInterval = setInterval(async () => {
-      if (currentScreen !== 'realtime') { stopLivePolling(); return; }
+      // SMART POLLING: Do not fetch if page is hidden
+      if (!isPageVisible || currentScreen !== 'realtime') return;
       await loadLiveData(liveEventId);
     }, 30000);
   }
 }
 
 async function loadLiveData(eventId) {
-  const [evData, statsData, hlData, espnScoreboard] = await Promise.all([
+  const [evData, statsData, hlData, espnScoreboard, espnLineups] = await Promise.all([
     apiFetch(`lookupevent.php?id=${eventId}`),
     apiFetch(`lookupeventstats.php?id=${eventId}`),
     apiFetch(`eventshighlights.php?e=${eventId}`),
     fetchESPNDetails(),
+    fetchESPNLineups()
   ]);
 
   if (evData?.events?.[0])        updateScoreboard(evData.events[0]);
   if (statsData?.eventstats)      updateStats(statsData.eventstats);
-  if (espnScoreboard?.length)     updateTimelineESPN(espnScoreboard, evData?.events?.[0]);
+  
+  const ev = evData?.events?.[0];
+  if (espnScoreboard?.length)     updateTimelineESPN(espnScoreboard, ev);
   if (hlData?.highlights?.length) renderHighlights(hlData.highlights);
+  if (espnLineups?.length)        renderLiveLineups(espnLineups, ev);
+}
+
+async function fetchESPNLineups() {
+  try {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 8000);
+    // ESPN summary endpoint contains lineups if available
+    const res  = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/scoreboard', { signal: ctrl.signal });
+    clearTimeout(tid);
+    const json = await res.json();
+    const event = (json.events || []).find(e =>
+      e.competitions?.[0]?.competitors?.some(c => c.team?.id === '3445')
+    );
+    // In ESPN scoreboard endpoint, lineups aren't always directly in competitors for live matches
+    // But let's try to extract from competitors if they have a 'roster' or 'lineup' array inside
+    return event?.competitions?.[0]?.competitors || null;
+  } catch { return null; }
 }
 
 async function fetchESPNDetails() {
@@ -378,21 +414,33 @@ function updateTimelineESPN(details, ev) {
   const FLU_ESPN = '3445';
   const isFluHome = ev ? ev.idHomeTeam == FLU_ID : true;
 
-  const sorted = [...details].sort((a, b) => (a.clock?.value || 0) - (b.clock?.value || 0));
+  const sorted = [...details].sort((a, b) => (b.clock?.value || 0) - (a.clock?.value || 0)); // Descending so newest is on top
 
-  container.innerHTML = sorted.map(d => {
+  container.innerHTML = sorted.map((d, index) => {
     const min    = d.clock?.displayValue || '—';
     const type   = (d.type?.text || '').toLowerCase();
     const player = d.athletesInvolved?.[0]?.displayName || '';
     const player2 = d.athletesInvolved?.[1]?.displayName || '';
+    const text   = d.text || d.shortText || '';
     const isFlu  = d.team?.id === FLU_ESPN;
+    
+    // Add fade-in animation for new elements
+    const fadeClass = (index === 0 && d.clock?.value > lastTimelineLength) ? 'fade-in' : '';
 
-    if (type === 'goal' || type.includes('goal')) return tlGoal(min, player, player2, isFlu);
-    if (type.includes('yellow'))                  return tlYellow(min, player, !isFlu);
-    if (type.includes('red'))                     return tlRed(min, player, !isFlu);
-    if (type.includes('sub'))                     return tlSub(min, player, player2);
-    return tlGeneric(min, d.type?.text, player);
+    if (type === 'goal' || type.includes('goal')) return tlGoal(min, player, player2, isFlu, text, fadeClass);
+    if (type.includes('yellow'))                  return tlYellow(min, player, !isFlu, text, fadeClass);
+    if (type.includes('red'))                     return tlRed(min, player, !isFlu, text, fadeClass);
+    if (type.includes('sub'))                     return tlSub(min, player, player2, text, fadeClass);
+    
+    // If it has text but no specific type, treat it as play-by-play
+    if (text) return tlGeneric(min, d.type?.text || 'Lance', text, fadeClass);
+    
+    return tlGeneric(min, d.type?.text, player, fadeClass);
   }).join('');
+  
+  if (sorted[0]?.clock?.value > lastTimelineLength) {
+    lastTimelineLength = sorted[0].clock.value;
+  }
 }
 
 async function updateScoreboard(ev) {
@@ -415,11 +463,70 @@ async function updateScoreboard(ev) {
   if (compEl)     compEl.textContent     = `${ev.strLeague} · ${ev.strVenue || ''}`;
   if (oppNames[1]) oppNames[1].textContent = oppName;
 
+  // Check for Goal Animation
+  if (lastKnownFluScore !== null && fluScore !== '—' && parseInt(fluScore) > lastKnownFluScore) {
+    triggerGoalAnimation(fluScore);
+  }
+  if (fluScore !== '—') {
+    lastKnownFluScore = parseInt(fluScore);
+  }
+
   // Use badge from event payload first, fall back to cache/lookup
   const rawBadge = isFluHome ? ev.strAwayTeamBadge : ev.strHomeTeamBadge;
   const oppBadge = rawBadge || await getTeamBadge(oppId);
   if (rawBadge) BADGE_CACHE[oppId] = rawBadge;
   if (oppBadgeEl && oppBadge) oppBadgeEl.src = oppBadge.replace('/tiny', '/small');
+}
+
+function triggerGoalAnimation(scorerName) {
+  const overlay = document.getElementById('goal-overlay');
+  const scorerEl = document.getElementById('goal-overlay-scorer');
+  if (!overlay || !scorerEl) return;
+  
+  scorerEl.textContent = "GOOOOOOOOOOOL";
+  overlay.classList.remove('hidden');
+  
+  // Try to vibrate if supported
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]);
+  
+  setTimeout(() => {
+    overlay.classList.add('hidden');
+  }, 3500);
+}
+
+function renderLiveLineups(competitors, ev) {
+  const container = document.getElementById('realtime-lineups');
+  const list = document.getElementById('lineups-list');
+  if (!container || !list || !competitors?.length) return;
+  
+  // ESPN team 3445 is Fluminense
+  const fluComp = competitors.find(c => c.team?.id === '3445');
+  const oppComp = competitors.find(c => c.team?.id !== '3445');
+  
+  // In some ESPN payloads, linesups are in c.roster or c.probables
+  const fluRoster = fluComp?.roster || fluComp?.probables || [];
+  
+  if (fluRoster.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+  
+  container.style.display = 'block';
+  
+  list.innerHTML = fluRoster.map(player => {
+    const p = player.athlete || player;
+    const name = p.displayName || p.shortName || '—';
+    const num = player.jersey ? `#${player.jersey}` : '';
+    const pos = player.position?.abbreviation || '';
+    
+    return `<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--c-surface2);">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:10px; font-weight:800; color:var(--c-surface2); width:16px;">${num}</span>
+        <span style="font-size:12px; font-weight:600; color:var(--c-text);">${name}</span>
+      </div>
+      <span style="font-size:10px; color:var(--c-input-text); font-weight:700;">${pos}</span>
+    </div>`;
+  }).join('');
 }
 
 function updateStats(stats) {
@@ -434,27 +541,32 @@ function updateTimeline(timeline) {
   const container = document.getElementById('live-timeline');
   if (!container || !timeline.length) return;
 
-  // Ascending order: earliest events at top
-  const sorted = [...timeline].sort((a, b) => (parseInt(a.intTime) || 0) - (parseInt(b.intTime) || 0));
+  // Descending order: newest events at top
+  const sorted = [...timeline].sort((a, b) => (parseInt(b.intTime) || 0) - (parseInt(a.intTime) || 0));
 
-  container.innerHTML = sorted.map(ev => {
+  container.innerHTML = sorted.map((ev, index) => {
     const isFlu = ev.idTeam == FLU_ID;
     const type  = (ev.strTimelineType || '').toLowerCase();
     const time  = ev.intTime || '—';
     const p     = ev.strPlayer || '';
+    
+    const fadeClass = (index === 0 && (parseInt(ev.intTime) || 0) > lastTimelineLength) ? 'fade-in' : '';
 
-    if (type.includes('goal') && isFlu)  return tlGoal(time, p, ev.strAssist, true);
-    if (type.includes('goal'))           return tlGoal(time, p, '', false);
-    if (type.includes('yellow'))         return tlYellow(time, p, !isFlu);
-    if (type.includes('red'))            return tlRed(time, p, !isFlu);
-    if (type.includes('sub'))            return tlSub(time, p, ev.strPlayer2);
-    return tlGeneric(time, ev.strTimelineType, p);
+    if (type.includes('goal') && isFlu)  return tlGoal(time, p, ev.strAssist, true, '', fadeClass);
+    if (type.includes('goal'))           return tlGoal(time, p, '', false, '', fadeClass);
+    if (type.includes('yellow'))         return tlYellow(time, p, !isFlu, '', fadeClass);
+    if (type.includes('red'))            return tlRed(time, p, !isFlu, '', fadeClass);
+    if (type.includes('sub'))            return tlSub(time, p, ev.strPlayer2, '', fadeClass);
+    return tlGeneric(time, ev.strTimelineType, p, fadeClass);
   }).join('');
+  
+  const currentMax = Math.max(...sorted.map(s => parseInt(s.intTime) || 0));
+  if (currentMax > lastTimelineLength) lastTimelineLength = currentMax;
 }
 
-function tlGoal(time, player, assist, isFlu) {
+function tlGoal(time, player, assist, isFlu, text = '', fadeClass = '') {
   return `
-    <div class="timeline-item goal-item">
+    <div class="timeline-item goal-item ${fadeClass}">
       <div class="timeline-time">${time}'</div>
       <div class="timeline-connector">
         <div class="timeline-dot goal-dot">
@@ -466,16 +578,17 @@ function tlGoal(time, player, assist, isFlu) {
         <div class="event-type-row">
           <span class="event-icon-label">⚽</span>
           <span class="event-type goal-type">${isFlu ? 'GOL DO FLUZÃO!' : 'Gol — Adversário'}</span>
-          <span class="event-scorer">${player}</span>
+          <span class="event-scorer">${player || 'Gol'}</span>
         </div>
-        ${assist ? `<div class="event-assist">Assist.: ${assist}</div>` : ''}
+        ${assist && assist !== '—' ? `<div class="event-assist">Assist.: ${assist}</div>` : ''}
+        ${text ? `<div class="event-desc" style="margin-top:6px;font-weight:600;">${text}</div>` : ''}
       </div>
     </div>`;
 }
 
-function tlYellow(time, player, isOpp) {
+function tlYellow(time, player, isOpp, text = '', fadeClass = '') {
   return `
-    <div class="timeline-item">
+    <div class="timeline-item ${fadeClass}">
       <div class="timeline-time">${time}'</div>
       <div class="timeline-connector">
         <div class="timeline-dot yellow-dot">
@@ -488,13 +601,14 @@ function tlYellow(time, player, isOpp) {
           <span class="event-type yellow-type">Cartão Amarelo</span>
           <span class="event-scorer ${isOpp ? 'opp-player' : ''}">${player}</span>
         </div>
+        ${text ? `<div class="event-desc" style="margin-top:4px;">${text}</div>` : ''}
       </div>
     </div>`;
 }
 
-function tlRed(time, player, isOpp) {
+function tlRed(time, player, isOpp, text = '', fadeClass = '') {
   return `
-    <div class="timeline-item">
+    <div class="timeline-item ${fadeClass}">
       <div class="timeline-time">${time}'</div>
       <div class="timeline-connector">
         <div class="timeline-dot red-dot">
@@ -507,13 +621,14 @@ function tlRed(time, player, isOpp) {
           <span class="event-type red-type">Cartão Vermelho</span>
           <span class="event-scorer ${isOpp ? 'opp-player' : ''}">${player}</span>
         </div>
+        ${text ? `<div class="event-desc" style="margin-top:4px;">${text}</div>` : ''}
       </div>
     </div>`;
 }
 
-function tlSub(time, out, in_) {
+function tlSub(time, out, in_, text = '', fadeClass = '') {
   return `
-    <div class="timeline-item">
+    <div class="timeline-item ${fadeClass}">
       <div class="timeline-time">${time}'</div>
       <div class="timeline-connector">
         <div class="timeline-dot sub-dot">
@@ -524,13 +639,14 @@ function tlSub(time, out, in_) {
       <div class="timeline-card">
         <div class="event-type-row"><span class="event-type sub-type">Substituição</span></div>
         <p class="event-desc"><strong class="sub-in">↑ ${in_ || '—'}</strong> entra no lugar de <strong class="sub-out">↓ ${out || '—'}</strong></p>
+        ${text ? `<div class="event-desc" style="margin-top:4px;">${text}</div>` : ''}
       </div>
     </div>`;
 }
 
-function tlGeneric(time, type, player) {
+function tlGeneric(time, type, text, fadeClass = '') {
   return `
-    <div class="timeline-item">
+    <div class="timeline-item ${fadeClass}">
       <div class="timeline-time">${time}'</div>
       <div class="timeline-connector">
         <div class="timeline-dot kickoff-dot">
@@ -539,7 +655,8 @@ function tlGeneric(time, type, player) {
         <div class="timeline-line"></div>
       </div>
       <div class="timeline-card kickoff-card">
-        <p class="event-type kickoff-type">${type || 'Evento'} ${player ? '· ' + player : ''}</p>
+        <p class="event-type kickoff-type" style="margin-bottom:4px;">${type || 'Lance'}</p>
+        <p class="event-desc">${text || ''}</p>
       </div>
     </div>`;
 }
