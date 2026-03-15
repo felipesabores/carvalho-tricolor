@@ -1435,6 +1435,267 @@ body {
 .standings-table .sg-pos { color: #155724; font-weight: 700; }
 .standings-table .sg-neg { color: #721c24; }
 
+/* ════════════════════════════════════════
+   STATISTICS DASHBOARD (Screen 7)
+   ════════════════════════════════════════ */
+.stats-dashboard {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.stats-brand-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--c-surface);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--c-surface2);
+}
+
+.brand-crest {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.brand-crest img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.brand-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--c-grenade);
+  margin: 0;
+}
+
+.brand-sub {
+  font-size: 11px;
+  color: var(--c-text);
+  margin: 2px 0 0;
+  font-weight: 600;
+}
+
+.stats-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.stats-summary-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid var(--c-surface2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.stats-summary-card .label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--c-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stats-summary-card .value {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--c-grenade);
+}
+
+.stats-section-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--c-grenade);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+}
+
+.stats-results-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid var(--c-surface2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.stats-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stats-result-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--c-surface2);
+}
+
+.stats-result-row:last-child { border-bottom: none; }
+
+.result-status-sm {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.result-status-sm.v { background: #33603B; }
+.result-status-sm.e { background: #E67E22; }
+.result-status-sm.d { background: #6E182C; }
+
+.result-teams-sm {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.score-line {
+  background: var(--c-surface);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 800;
+  color: var(--c-grenade);
+  font-family: monospace;
+}
+
+.opp-name {
+  color: var(--c-text);
+  font-weight: 500;
+  font-size: 11px;
+  max-width: 80px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.stats-leaders-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid var(--c-surface2);
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.stats-leader-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--c-surface2);
+}
+
+.stats-leader-item:last-child { border-bottom: none; }
+
+.leader-rank {
+  font-size: 14px;
+  font-weight: 900;
+  color: #e4d0d6;
+  width: 14px;
+}
+
+.leader-info { flex: 1; }
+
+.leader-name-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.leader-name { font-size: 12px; font-weight: 700; color: #1a1a2e; }
+.leader-val { font-size: 12px; font-weight: 800; color: var(--c-grenade); }
+
+.leader-bar-bg {
+  height: 6px;
+  background: var(--c-surface);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.leader-bar-fill {
+  height: 100%;
+  background: var(--c-grenade);
+  border-radius: 3px;
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.stats-team-moment {
+  background: linear-gradient(135deg, #fff5f7 0%, #fff 100%);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1.5px solid #e4d0d6;
+}
+
+.form-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.form-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.form-dot.v { background: #33603B; }
+.form-dot.e { background: #E67E22; }
+.form-dot.d { background: #6E182C; }
+
+.stats-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.stats-detail-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stats-detail-mini .label { font-size: 9px; color: var(--c-text); font-weight: 600; text-transform: uppercase; }
+.stats-detail-mini .val { font-size: 14px; font-weight: 800; color: #1a1a2e; }
+
+.hidden { display: none !important; }
+
 .pos-marker {
   display: inline-flex;
   align-items: center;
@@ -1451,9 +1712,6 @@ body {
 .pos-marker.zone-sul { background: #4D6B8A; color: #fff; }
 .pos-marker.zone-rel { background: #CC0000; color: #fff; }
 
-/* ════════════════════════════════════════
-   ELENCO SHORTCUT (Profile)
-   ════════════════════════════════════════ */
 .squad-promo {
   display: flex;
   align-items: center;
@@ -1476,9 +1734,6 @@ body {
 }
 .squad-promo-text p { font-size: 11px; color: var(--c-text); margin-top: 2px; }
 
-/* ════════════════════════════════════════
-   ELENCO SCREEN (Screen 8)
-   ════════════════════════════════════════ */
 .squad-header-banner {
   display: flex;
   align-items: center;
@@ -1573,9 +1828,6 @@ body {
   padding: 14px 16px 4px;
 }
 
-/* ════════════════════════════════════════
-   HIGHLIGHTS (Realtime)
-   ════════════════════════════════════════ */
 .highlights-scroll {
   display: flex;
   gap: 10px;
@@ -1621,7 +1873,6 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
 /* ════════════════════════════════════════
    RESPONSIVE — full screen on mobile
    ════════════════════════════════════════ */

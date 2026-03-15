@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -7,20 +8,30 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  
-  <!-- Open Graph / Link Preview Metadata -->
-  <meta property="og:title" content="Carvalho Tricolor" />
-  <meta property="og:description" content="Acesso Exclusivo Família Carvalho" />
-  <meta property="og:image" content="https://flu.carvalhodev.com.br/carvalho.png" />
-  <meta property="og:url" content="https://flu.carvalhodev.com.br" />
-  <meta name="twitter:card" content="summary_large_image" />
-  
   <title>Carvalho Tricolor</title>
+  <meta name="description" content="App exclusivo da Família Carvalho. Acompanhe o Fluminense em tempo real." />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://flu.carvalhodev.com.br/" />
+  <meta property="og:title" content="Carvalho Tricolor" />
+  <meta property="og:description" content="Acompanhe o Fluzão com a Família Carvalho." />
+  <meta property="og:image" content="https://flu.carvalhodev.com.br/carvalho.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://flu.carvalhodev.com.br/" />
+  <meta property="twitter:title" content="Carvalho Tricolor" />
+  <meta property="twitter:description" content="Acompanhe o Fluzão com a Família Carvalho." />
+  <meta property="twitter:image" content="https://flu.carvalhodev.com.br/carvalho.png" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="styles.css?v=3" />
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
 
   <!-- ══════════════════════════════════════
@@ -29,8 +40,7 @@
   <div class="screen active" id="screen-login">
     <div class="login-container">
       <div class="login-logo-wrap">
-        <img src="carvalho.png"
-             alt="Família Carvalho" class="login-logo" />
+        <img src="carvalho.png" alt="Família Carvalho" class="login-logo" />
       </div>
 
       <div class="login-badge">
@@ -38,7 +48,7 @@
         <span>Família Carvalho</span>
       </div>
 
-      <h2 class="login-title">Acesso Exclusivo<br/>Família Carvalho</h2>
+      <h2 class="login-title">Acesso Exclusivo<br />Família Carvalho</h2>
 
       <form class="login-form" onsubmit="goTo('home'); return false;">
         <div class="input-group">
@@ -46,8 +56,8 @@
           <div class="input-wrapper">
             <span class="input-icon">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4D6B8A" stroke-width="2">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                <polyline points="22,6 12,13 2,6"/>
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
               </svg>
             </span>
             <input type="email" placeholder="seu@email.com" class="form-input" />
@@ -59,8 +69,8 @@
           <div class="input-wrapper">
             <span class="input-icon">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4D6B8A" stroke-width="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
             </span>
             <input type="password" placeholder="••••••••" class="form-input" />
@@ -88,13 +98,12 @@
   ══════════════════════════════════════ -->
   <div class="screen" id="screen-home">
     <header class="app-header">
-      <img src="carvalho.png"
-           alt="Família Carvalho" class="header-logo" />
+      <img src="carvalho.png" alt="Família Carvalho" class="header-logo" />
       <div class="header-right">
         <div class="notif-badge" onclick="goTo('profile')">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
           </svg>
           <span class="badge-dot"></span>
         </div>
@@ -103,7 +112,7 @@
 
     <main class="screen-content has-header has-bottom-nav">
       <div class="welcome-section">
-        <h2 class="welcome-title">Saudações Tricolores,<br/>Família Carvalho! 🤍</h2>
+        <h2 class="welcome-title">Saudações Tricolores,<br />Família Carvalho! 🤍</h2>
         <p class="welcome-sub">Sábado · 14 de março de 2026</p>
       </div>
 
@@ -114,15 +123,17 @@
           PRÓXIMO JOGO
         </div>
         <div class="match-competition">
-          <img src="https://upload.wikimedia.org/wikipedia/pt/thumb/5/5d/Campeonato_Carioca_logo.png/200px-Campeonato_Carioca_logo.png"
-               alt="Liga" class="competition-logo" onerror="this.style.display='none'" />
+          <img
+            src="https://upload.wikimedia.org/wikipedia/pt/thumb/5/5d/Campeonato_Carioca_logo.png/200px-Campeonato_Carioca_logo.png"
+            alt="Liga" class="competition-logo" onerror="this.style.display='none'" />
           <span id="next-match-comp">Carregando...</span>
         </div>
         <div class="match-teams">
           <div class="team-col">
             <div class="team-crest flu-crest">
-              <img src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg"
-                   alt="Fluminense" />
+              <img
+                src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg"
+                alt="Fluminense" />
             </div>
             <span class="team-name">Fluminense</span>
           </div>
@@ -135,23 +146,23 @@
           </div>
           <div class="team-col">
             <div class="team-crest">
-              <img id="next-opp-badge" src="" alt="Adversário" style="display:none"
-                   onload="this.style.display=''" />
+              <img id="next-opp-badge" src="" alt="Adversário" style="display:none" onload="this.style.display=''" />
             </div>
             <span class="team-name" id="next-opp-name">—</span>
           </div>
         </div>
         <div class="match-venue" id="next-match-venue">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E182C" stroke-width="2">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-            <circle cx="12" cy="10" r="3"/>
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
           </svg>
           Carregando...
         </div>
         <button id="next-match-alert-btn" class="btn-primary btn-block" onclick="goTo('realtime')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="margin-right:6px">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
           </svg>
           Ativar Alerta
         </button>
@@ -184,40 +195,37 @@
     <nav class="bottom-nav">
       <button class="nav-item active" onclick="goTo('home')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9,22 9,12 15,12 15,22"/>
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9,22 9,12 15,12 15,22" />
         </svg>
         <span>Início</span>
       </button>
       <button class="nav-item" onclick="goTo('calendar')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
         </svg>
         <span>Agenda</span>
       </button>
       <button class="nav-item" onclick="goTo('realtime')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12,6 12,12 16,14"/>
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12,6 12,12 16,14" />
         </svg>
         <span>Tempo Real</span>
       </button>
       <button class="nav-item" onclick="goTo('table')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <line x1="3" y1="9" x2="21" y2="9"/>
-          <line x1="3" y1="15" x2="21" y2="15"/>
-          <line x1="9" y1="9" x2="9" y2="21"/>
+          <path d="M12 20v-6M6 20V10M18 20V4" />
         </svg>
-        <span>Classificação</span>
+        <span>Estatísticas</span>
       </button>
       <button class="nav-item" onclick="goTo('profile')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
         </svg>
         <span>Perfil</span>
       </button>
@@ -231,13 +239,14 @@
     <header class="app-header">
       <div class="header-back" onclick="goTo('home')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
-          <polyline points="15,18 9,12 15,6"/>
+          <polyline points="15,18 9,12 15,6" />
         </svg>
       </div>
       <h1 class="header-title">Agenda da Família</h1>
       <div class="header-right">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
       </div>
     </header>
@@ -246,216 +255,225 @@
 
       <div id="calendar-content">
 
-      <!-- MONTH: MARCH -->
-      <div class="calendar-month-header">
-        <div class="month-stripe"></div>
-        <h2 class="month-label">Março 2026</h2>
-      </div>
+        <!-- MONTH: MARCH -->
+        <div class="calendar-month-header">
+          <div class="month-stripe"></div>
+          <h2 class="month-label">Março 2026</h2>
+        </div>
 
-      <div class="match-list-item next-match-item">
-        <div class="match-item-date">
-          <span class="day-num">15</span>
-          <span class="day-name">DOM</span>
-        </div>
-        <div class="match-item-divider"></div>
-        <div class="match-item-info">
-          <div class="match-item-teams">
-            <div class="mini-crest flu-mini">
-              <img src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg" alt="FLU"/>
+        <div class="match-list-item next-match-item">
+          <div class="match-item-date">
+            <span class="day-num">15</span>
+            <span class="day-name">DOM</span>
+          </div>
+          <div class="match-item-divider"></div>
+          <div class="match-item-info">
+            <div class="match-item-teams">
+              <div class="mini-crest flu-mini">
+                <img
+                  src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg"
+                  alt="FLU" />
+              </div>
+              <span class="vs-mini">×</span>
+              <div class="mini-crest opp-mini">
+                <img src="https://r2.thesportsdb.com/images/media/team/badge/syptwx1473538074.png/tiny" alt="FLA" />
+              </div>
             </div>
-            <span class="vs-mini">×</span>
-            <div class="mini-crest opp-mini">
-              <img src="https://r2.thesportsdb.com/images/media/team/badge/syptwx1473538074.png/tiny" alt="FLA"/>
+            <div class="match-item-meta">
+              <span class="match-item-comp">Campeonato Carioca · SF</span>
+              <span class="match-item-time">16:00 · Maracanã</span>
             </div>
           </div>
-          <div class="match-item-meta">
-            <span class="match-item-comp">Campeonato Carioca · SF</span>
-            <span class="match-item-time">16:00 · Maracanã</span>
+          <div class="match-item-channel">
+            <div class="channel-badge globo">TV Globo</div>
           </div>
+          <span class="next-tag">Próximo</span>
         </div>
-        <div class="match-item-channel">
-          <div class="channel-badge globo">TV Globo</div>
-        </div>
-        <span class="next-tag">Próximo</span>
-      </div>
 
-      <div class="match-list-item">
-        <div class="match-item-date">
-          <span class="day-num">19</span>
-          <span class="day-name">QUI</span>
-        </div>
-        <div class="match-item-divider"></div>
-        <div class="match-item-info">
-          <div class="match-item-teams">
-            <div class="mini-crest">
-              <img src="https://r2.thesportsdb.com/images/media/team/badge/ynqlxo1630521109.png/tiny" alt="VAS"/>
+        <div class="match-list-item">
+          <div class="match-item-date">
+            <span class="day-num">19</span>
+            <span class="day-name">QUI</span>
+          </div>
+          <div class="match-item-divider"></div>
+          <div class="match-item-info">
+            <div class="match-item-teams">
+              <div class="mini-crest">
+                <img src="https://r2.thesportsdb.com/images/media/team/badge/ynqlxo1630521109.png/tiny" alt="VAS" />
+              </div>
+              <span class="vs-mini">×</span>
+              <div class="mini-crest flu-mini">
+                <img
+                  src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg"
+                  alt="FLU" />
+              </div>
             </div>
-            <span class="vs-mini">×</span>
-            <div class="mini-crest flu-mini">
-              <img src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg" alt="FLU"/>
+            <div class="match-item-meta">
+              <span class="match-item-comp">Campeonato Carioca · SF</span>
+              <span class="match-item-time">20:30 · São Januário</span>
             </div>
           </div>
-          <div class="match-item-meta">
-            <span class="match-item-comp">Campeonato Carioca · SF</span>
-            <span class="match-item-time">20:30 · São Januário</span>
+          <div class="match-item-channel">
+            <div class="channel-badge band">Band</div>
           </div>
         </div>
-        <div class="match-item-channel">
-          <div class="channel-badge band">Band</div>
-        </div>
-      </div>
 
-      <div class="match-list-item">
-        <div class="match-item-date">
-          <span class="day-num">25</span>
-          <span class="day-name">QUA</span>
-        </div>
-        <div class="match-item-divider"></div>
-        <div class="match-item-info">
-          <div class="match-item-teams">
-            <div class="mini-crest flu-mini">
-              <img src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg" alt="FLU"/>
+        <div class="match-list-item">
+          <div class="match-item-date">
+            <span class="day-num">25</span>
+            <span class="day-name">QUA</span>
+          </div>
+          <div class="match-item-divider"></div>
+          <div class="match-item-info">
+            <div class="match-item-teams">
+              <div class="mini-crest flu-mini">
+                <img
+                  src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg"
+                  alt="FLU" />
+              </div>
+              <span class="vs-mini">×</span>
+              <div class="mini-crest">
+                <img src="https://r2.thesportsdb.com/images/media/team/badge/bs5mbw1733004596.png/tiny" alt="BOT" />
+              </div>
             </div>
-            <span class="vs-mini">×</span>
-            <div class="mini-crest">
-              <img src="https://r2.thesportsdb.com/images/media/team/badge/bs5mbw1733004596.png/tiny" alt="BOT"/>
+            <div class="match-item-meta">
+              <span class="match-item-comp">Campeonato Carioca · Final</span>
+              <span class="match-item-time">21:00 · Nilton Santos</span>
             </div>
           </div>
-          <div class="match-item-meta">
-            <span class="match-item-comp">Campeonato Carioca · Final</span>
-            <span class="match-item-time">21:00 · Nilton Santos</span>
+          <div class="match-item-channel">
+            <div class="channel-badge sportv">SporTV</div>
           </div>
         </div>
-        <div class="match-item-channel">
-          <div class="channel-badge sportv">SporTV</div>
-        </div>
-      </div>
 
-      <!-- MONTH: APRIL -->
-      <div class="calendar-month-header">
-        <div class="month-stripe"></div>
-        <h2 class="month-label">Abril 2026</h2>
-      </div>
+        <!-- MONTH: APRIL -->
+        <div class="calendar-month-header">
+          <div class="month-stripe"></div>
+          <h2 class="month-label">Abril 2026</h2>
+        </div>
 
-      <div class="match-list-item">
-        <div class="match-item-date">
-          <span class="day-num">02</span>
-          <span class="day-name">QUI</span>
-        </div>
-        <div class="match-item-divider"></div>
-        <div class="match-item-info">
-          <div class="match-item-teams">
-            <div class="mini-crest flu-mini">
-              <img src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg" alt="FLU"/>
+        <div class="match-list-item">
+          <div class="match-item-date">
+            <span class="day-num">02</span>
+            <span class="day-name">QUI</span>
+          </div>
+          <div class="match-item-divider"></div>
+          <div class="match-item-info">
+            <div class="match-item-teams">
+              <div class="mini-crest flu-mini">
+                <img
+                  src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg"
+                  alt="FLU" />
+              </div>
+              <span class="vs-mini">×</span>
+              <div class="mini-crest">
+                <img src="https://r2.thesportsdb.com/images/media/team/badge/vsqwqp1473538105.png/tiny" alt="PAL" />
+              </div>
             </div>
-            <span class="vs-mini">×</span>
-            <div class="mini-crest">
-              <img src="https://r2.thesportsdb.com/images/media/team/badge/vsqwqp1473538105.png/tiny" alt="PAL"/>
+            <div class="match-item-meta">
+              <span class="match-item-comp">Brasileirão · Rodada 1</span>
+              <span class="match-item-time">19:00 · Maracanã</span>
             </div>
           </div>
-          <div class="match-item-meta">
-            <span class="match-item-comp">Brasileirão · Rodada 1</span>
-            <span class="match-item-time">19:00 · Maracanã</span>
+          <div class="match-item-channel">
+            <div class="channel-badge premiere">Premiere</div>
           </div>
         </div>
-        <div class="match-item-channel">
-          <div class="channel-badge premiere">Premiere</div>
-        </div>
-      </div>
 
-      <div class="match-list-item">
-        <div class="match-item-date">
-          <span class="day-num">09</span>
-          <span class="day-name">QUI</span>
-        </div>
-        <div class="match-item-divider"></div>
-        <div class="match-item-info">
-          <div class="match-item-teams">
-            <div class="mini-crest">
-              <img src="https://r2.thesportsdb.com/images/media/team/badge/vvuvps1473538042.png/tiny" alt="COR"/>
+        <div class="match-list-item">
+          <div class="match-item-date">
+            <span class="day-num">09</span>
+            <span class="day-name">QUI</span>
+          </div>
+          <div class="match-item-divider"></div>
+          <div class="match-item-info">
+            <div class="match-item-teams">
+              <div class="mini-crest">
+                <img src="https://r2.thesportsdb.com/images/media/team/badge/vvuvps1473538042.png/tiny" alt="COR" />
+              </div>
+              <span class="vs-mini">×</span>
+              <div class="mini-crest flu-mini">
+                <img
+                  src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg"
+                  alt="FLU" />
+              </div>
             </div>
-            <span class="vs-mini">×</span>
-            <div class="mini-crest flu-mini">
-              <img src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg" alt="FLU"/>
+            <div class="match-item-meta">
+              <span class="match-item-comp">Brasileirão · Rodada 2</span>
+              <span class="match-item-time">21:30 · Neo Química Arena</span>
             </div>
           </div>
-          <div class="match-item-meta">
-            <span class="match-item-comp">Brasileirão · Rodada 2</span>
-            <span class="match-item-time">21:30 · Neo Química Arena</span>
+          <div class="match-item-channel">
+            <div class="channel-badge premiere">Premiere</div>
           </div>
         </div>
-        <div class="match-item-channel">
-          <div class="channel-badge premiere">Premiere</div>
-        </div>
-      </div>
 
-      <div class="match-list-item">
-        <div class="match-item-date">
-          <span class="day-num">16</span>
-          <span class="day-name">QUI</span>
-        </div>
-        <div class="match-item-divider"></div>
-        <div class="match-item-info">
-          <div class="match-item-teams">
-            <div class="mini-crest flu-mini">
-              <img src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg" alt="FLU"/>
+        <div class="match-list-item">
+          <div class="match-item-date">
+            <span class="day-num">16</span>
+            <span class="day-name">QUI</span>
+          </div>
+          <div class="match-item-divider"></div>
+          <div class="match-item-info">
+            <div class="match-item-teams">
+              <div class="mini-crest flu-mini">
+                <img
+                  src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg"
+                  alt="FLU" />
+              </div>
+              <span class="vs-mini">×</span>
+              <div class="mini-crest">
+                <img src="https://r2.thesportsdb.com/images/media/team/badge/x5lixs1743742872.png/tiny" alt="ATL" />
+              </div>
             </div>
-            <span class="vs-mini">×</span>
-            <div class="mini-crest">
-              <img src="https://r2.thesportsdb.com/images/media/team/badge/x5lixs1743742872.png/tiny" alt="ATL"/>
+            <div class="match-item-meta">
+              <span class="match-item-comp">Copa Libertadores · Fase 1</span>
+              <span class="match-item-time">19:00 · Maracanã</span>
             </div>
           </div>
-          <div class="match-item-meta">
-            <span class="match-item-comp">Copa Libertadores · Fase 1</span>
-            <span class="match-item-time">19:00 · Maracanã</span>
+          <div class="match-item-channel">
+            <div class="channel-badge espn">ESPN</div>
           </div>
         </div>
-        <div class="match-item-channel">
-          <div class="channel-badge espn">ESPN</div>
-        </div>
-      </div>
 
-      <div style="height: 20px"></div>
+        <div style="height: 20px"></div>
       </div><!-- end #calendar-content -->
     </main>
 
     <nav class="bottom-nav">
       <button class="nav-item" onclick="goTo('home')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9,22 9,12 15,12 15,22"/>
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9,22 9,12 15,12 15,22" />
         </svg>
         <span>Início</span>
       </button>
       <button class="nav-item active" onclick="goTo('calendar')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
         </svg>
         <span>Agenda</span>
       </button>
       <button class="nav-item" onclick="goTo('realtime')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12,6 12,12 16,14"/>
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12,6 12,12 16,14" />
         </svg>
         <span>Tempo Real</span>
       </button>
       <button class="nav-item" onclick="goTo('table')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <line x1="3" y1="9" x2="21" y2="9"/>
-          <line x1="3" y1="15" x2="21" y2="15"/>
-          <line x1="9" y1="9" x2="9" y2="21"/>
+          <path d="M12 20v-6M6 20V10M18 20V4" />
         </svg>
-        <span>Classificação</span>
+        <span>Estatísticas</span>
       </button>
       <button class="nav-item" onclick="goTo('profile')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
         </svg>
         <span>Perfil</span>
       </button>
@@ -469,7 +487,7 @@
     <header class="app-header realtime-header">
       <div class="header-back" onclick="goTo('home')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
-          <polyline points="15,18 9,12 15,6"/>
+          <polyline points="15,18 9,12 15,6" />
         </svg>
       </div>
       <div class="header-center">
@@ -480,9 +498,11 @@
       </div>
       <div class="header-right">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
-          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          <circle cx="18" cy="5" r="3" />
+          <circle cx="6" cy="12" r="3" />
+          <circle cx="18" cy="19" r="3" />
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
         </svg>
       </div>
     </header>
@@ -503,7 +523,9 @@
         <div class="scoreboard-main">
           <div class="scoreboard-team">
             <div class="scoreboard-crest flu-scoreboard">
-              <img src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg" alt="Fluminense"/>
+              <img
+                src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg"
+                alt="Fluminense" />
             </div>
             <span class="scoreboard-name">Fluminense</span>
           </div>
@@ -517,7 +539,8 @@
           </div>
           <div class="scoreboard-team">
             <div class="scoreboard-crest opp-scoreboard">
-              <img src="https://r2.thesportsdb.com/images/media/team/badge/syptwx1473538074.png/small" alt="Flamengo" style="width:42px;height:42px;object-fit:contain;"/>
+              <img src="https://r2.thesportsdb.com/images/media/team/badge/syptwx1473538074.png/small" alt="Flamengo"
+                style="width:42px;height:42px;object-fit:contain;" />
             </div>
             <span class="scoreboard-name">Flamengo</span>
           </div>
@@ -548,14 +571,20 @@
         <h2 class="timeline-title">Lances da Partida</h2>
 
         <div class="timeline" id="live-timeline">
-          <div class="api-loading"><div class="loading-spinner"></div><p>Carregando lances...</p></div>
+          <div class="api-loading">
+            <div class="loading-spinner"></div>
+            <p>Carregando lances...</p>
+          </div>
         </div>
-        
+
         <!-- LINEUPS TAB -->
         <div class="lineups-section" id="realtime-lineups" style="display:none; margin: 20px 0 0;">
-          <h3 style="font-size:12px; font-weight:800; color:var(--c-grenade); margin-bottom:10px;text-transform:uppercase;">Escalação Inicial</h3>
-          <div id="lineups-list" style="background:#fff; border-radius:10px; padding:12px; border:1px solid var(--c-surface2);">
-             <!-- Players injected here via JS -->
+          <h3
+            style="font-size:12px; font-weight:800; color:var(--c-grenade); margin-bottom:10px;text-transform:uppercase;">
+            Escalação Inicial</h3>
+          <div id="lineups-list"
+            style="background:#fff; border-radius:10px; padding:12px; border:1px solid var(--c-surface2);">
+            <!-- Players injected here via JS -->
           </div>
         </div>
       </div>
@@ -567,40 +596,37 @@
     <nav class="bottom-nav">
       <button class="nav-item" onclick="goTo('home')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9,22 9,12 15,12 15,22"/>
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9,22 9,12 15,12 15,22" />
         </svg>
         <span>Início</span>
       </button>
       <button class="nav-item" onclick="goTo('calendar')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
         </svg>
         <span>Agenda</span>
       </button>
       <button class="nav-item active" onclick="goTo('realtime')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12,6 12,12 16,14"/>
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12,6 12,12 16,14" />
         </svg>
         <span>Tempo Real</span>
       </button>
       <button class="nav-item" onclick="goTo('table')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <line x1="3" y1="9" x2="21" y2="9"/>
-          <line x1="3" y1="15" x2="21" y2="15"/>
-          <line x1="9" y1="9" x2="9" y2="21"/>
+          <path d="M12 20v-6M6 20V10M18 20V4" />
         </svg>
-        <span>Classificação</span>
+        <span>Estatísticas</span>
       </button>
       <button class="nav-item" onclick="goTo('profile')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
         </svg>
         <span>Perfil</span>
       </button>
@@ -614,15 +640,17 @@
     <header class="app-header article-header">
       <button class="header-back" onclick="goTo('home')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
-          <polyline points="15,18 9,12 15,6"/>
+          <polyline points="15,18 9,12 15,6" />
         </svg>
         Voltar
       </button>
       <div class="header-right article-actions">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
-          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          <circle cx="18" cy="5" r="3" />
+          <circle cx="6" cy="12" r="3" />
+          <circle cx="18" cy="19" r="3" />
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
         </svg>
       </div>
     </header>
@@ -646,9 +674,11 @@
         <p class="article-text" id="article-body-text"></p>
 
         <button id="article-read-btn" class="btn-primary btn-block" style="margin: 16px 0;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="margin-right:6px">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" />
+            <line x1="10" y1="14" x2="21" y2="3" />
           </svg>
           Ler notícia completa
         </button>
@@ -688,7 +718,8 @@
       <h1 class="header-title">Meu Perfil</h1>
       <div class="header-right">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
-          <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M17.66 7.34a8 8 0 0 1 0 9.32M14.12 9.88a4 4 0 0 1 0 4.24"/>
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M17.66 7.34a8 8 0 0 1 0 9.32M14.12 9.88a4 4 0 0 1 0 4.24" />
         </svg>
       </div>
     </header>
@@ -700,14 +731,14 @@
         <div class="profile-avatar-wrap">
           <div class="profile-avatar">
             <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#6E182C" stroke-width="1.5">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
             </svg>
           </div>
           <div class="avatar-badge-edit">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
           </div>
         </div>
@@ -740,7 +771,8 @@
             <div class="pref-info">
               <div class="pref-icon" style="background:#FFF5E6">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/>
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12,6 12,12 16,14" />
                 </svg>
               </div>
               <div class="pref-text">
@@ -760,8 +792,9 @@
             <div class="pref-info">
               <div class="pref-icon" style="background:#EAF3EB">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#33603B" stroke-width="2">
-                  <circle cx="12" cy="12" r="10" fill="none"/>
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                  <circle cx="12" cy="12" r="10" fill="none" />
+                  <path
+                    d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
                 </svg>
               </div>
               <div class="pref-text">
@@ -781,8 +814,9 @@
             <div class="pref-info">
               <div class="pref-icon" style="background:#FFF0F0">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6E182C" stroke-width="2">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                  <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
                 </svg>
               </div>
               <div class="pref-text">
@@ -806,8 +840,8 @@
             <div class="pref-info">
               <div class="pref-icon" style="background:#F5F5F7">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#727175" stroke-width="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
                 </svg>
               </div>
               <div class="pref-text">
@@ -816,7 +850,7 @@
               </div>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C2CAD8" stroke-width="2">
-              <polyline points="9,18 15,12 9,6"/>
+              <polyline points="9,18 15,12 9,6" />
             </svg>
           </div>
           <div class="pref-divider"></div>
@@ -824,7 +858,7 @@
             <div class="pref-info">
               <div class="pref-icon" style="background:#F5F5F7">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#727175" stroke-width="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
               </div>
               <div class="pref-text">
@@ -833,7 +867,7 @@
               </div>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C2CAD8" stroke-width="2">
-              <polyline points="9,18 15,12 9,6"/>
+              <polyline points="9,18 15,12 9,6" />
             </svg>
           </div>
         </div>
@@ -841,18 +875,18 @@
 
       <div style="padding: 0 20px 10px;">
         <button class="btn-secondary btn-block" onclick="goTo('login')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="margin-right:6px">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
           Sair do App
         </button>
       </div>
 
       <div class="app-footer">
-        <img src="carvalho.png"
-             alt="Família Carvalho" style="width:30px; opacity:0.4; margin-bottom:6px;" />
+        <img src="carvalho.png" alt="Família Carvalho" style="width:30px; opacity:0.4; margin-bottom:6px;" />
         <p>Carvalho Tricolor v1.0.0</p>
         <p>Feito com ❤️ para a Família Carvalho</p>
       </div>
@@ -861,40 +895,40 @@
     <nav class="bottom-nav">
       <button class="nav-item" onclick="goTo('home')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9,22 9,12 15,12 15,22"/>
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9,22 9,12 15,12 15,22" />
         </svg>
         <span>Início</span>
       </button>
       <button class="nav-item" onclick="goTo('calendar')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
         </svg>
         <span>Agenda</span>
       </button>
       <button class="nav-item" onclick="goTo('realtime')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12,6 12,12 16,14"/>
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12,6 12,12 16,14" />
         </svg>
         <span>Tempo Real</span>
       </button>
       <button class="nav-item" onclick="goTo('table')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <line x1="3" y1="9" x2="21" y2="9"/>
-          <line x1="3" y1="15" x2="21" y2="15"/>
-          <line x1="9" y1="9" x2="9" y2="21"/>
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <line x1="3" y1="9" x2="21" y2="9" />
+          <line x1="3" y1="15" x2="21" y2="15" />
+          <line x1="9" y1="9" x2="9" y2="21" />
         </svg>
         <span>Classificação</span>
       </button>
       <button class="nav-item active" onclick="goTo('profile')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
         </svg>
         <span>Perfil</span>
       </button>
@@ -906,73 +940,82 @@
   ══════════════════════════════════════ -->
   <div class="screen" id="screen-table">
     <header class="app-header">
-      <div style="width:44px"></div>
-      <h1 class="header-title">Brasileirão 2026</h1>
-      <div style="width:44px"></div>
+      <div class="header-back" onclick="goTo('home')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+          <polyline points="15,18 9,12 15,6" />
+        </svg>
+      </div>
+      <h1 class="header-title">Estatísticas Tricolores</h1>
+      <div class="header-right">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+          <path d="M12 20v-6M6 20V10M18 20V4" />
+        </svg>
+      </div>
     </header>
 
     <main class="screen-content has-header has-bottom-nav">
-      <div class="table-legend">
-        <span class="legend-dot" style="background:#33603B"></span><span>Libertadores</span>
-        <span class="legend-dot" style="background:#4D6B8A"></span><span>Sul-Americana</span>
-        <span class="legend-dot" style="background:#CC0000"></span><span>Rebaixamento</span>
-      </div>
-      <div id="table-content">
-        <div class="api-loading"><div class="loading-spinner"></div><p>Carregando tabela...</p></div>
+      <!-- STATS DASHBOARD -->
+      <div id="stats-dashboard-content">
+        <div class="api-loading">
+          <div class="loading-spinner"></div>
+          <p>Analisando dados do clube...</p>
+        </div>
       </div>
 
-      <!-- ELENCO SHORTCUT -->
-      <div class="squad-promo" onclick="goTo('squad')">
-        <div class="squad-promo-badge">
-          <img src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg" alt="FLU" />
+      <!-- FULL TABLE VIEW (HIDDEN BY DEFAULT) -->
+      <div id="table-full-view" class="hidden" style="padding-top: 20px;">
+        <div class="table-legend">
+          <span class="legend-dot" style="background:#33603B"></span><span>Libertadores</span>
+          <span class="legend-dot" style="background:#4D6B8A"></span><span>Sul-Americana</span>
+          <span class="legend-dot" style="background:#CC0000"></span><span>Rebaixamento</span>
         </div>
-        <div class="squad-promo-text">
-          <span>Elenco Completo</span>
-          <p>Ver todos os jogadores do Flu</p>
-        </div>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6E182C" stroke-width="2.5">
-          <polyline points="9,18 15,12 9,6"/>
-        </svg>
+        <div id="table-content"></div>
       </div>
-    </main>
+
+      <div class="stats-footer-links" style="padding: 20px;">
+        <button class="btn-secondary btn-block" id="toggle-full-table" onclick="toggleFullTable()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M3 9h18M3 15h18M9 9v12" />
+          </svg>
+          Ver Tabela de Classificação
+        </button>
+      </div>
 
     <nav class="bottom-nav">
       <button class="nav-item" onclick="goTo('home')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9,22 9,12 15,12 15,22"/>
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9,22 9,12 15,12 15,22" />
         </svg>
         <span>Início</span>
       </button>
       <button class="nav-item" onclick="goTo('calendar')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
         </svg>
         <span>Agenda</span>
       </button>
       <button class="nav-item" onclick="goTo('realtime')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12,6 12,12 16,14"/>
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12,6 12,12 16,14" />
         </svg>
         <span>Tempo Real</span>
       </button>
       <button class="nav-item active" onclick="goTo('table')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <line x1="3" y1="9" x2="21" y2="9"/>
-          <line x1="3" y1="15" x2="21" y2="15"/>
-          <line x1="9" y1="9" x2="9" y2="21"/>
+          <path d="M12 20v-6M6 20V10M18 20V4" />
         </svg>
-        <span>Classificação</span>
+        <span>Estatísticas</span>
       </button>
       <button class="nav-item" onclick="goTo('profile')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
         </svg>
         <span>Perfil</span>
       </button>
@@ -986,7 +1029,7 @@
     <header class="app-header">
       <div class="header-back" onclick="goTo('profile')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
-          <polyline points="15,18 9,12 15,6"/>
+          <polyline points="15,18 9,12 15,6" />
         </svg>
       </div>
       <h1 class="header-title">Elenco do Flu</h1>
@@ -995,18 +1038,24 @@
 
     <main class="screen-content has-header">
       <div class="squad-header-banner">
-        <img src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg" alt="Fluminense" class="squad-banner-badge" />
+        <img
+          src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg"
+          alt="Fluminense" class="squad-banner-badge" />
         <div>
           <h2 class="squad-banner-name">Fluminense FC</h2>
           <p class="squad-banner-sub">Temporada 2026</p>
         </div>
       </div>
       <div id="squad-content">
-        <div class="api-loading"><div class="loading-spinner"></div><p>Carregando elenco...</p></div>
+        <div class="api-loading">
+          <div class="loading-spinner"></div>
+          <p>Carregando elenco...</p>
+        </div>
       </div>
     </main>
   </div>
 
   <script src="app.js?v=10"></script>
 </body>
+
 </html>

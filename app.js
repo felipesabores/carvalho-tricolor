@@ -54,7 +54,7 @@ function goTo(name) {
   if (name === 'home')     { loadHomeData(); loadRSSNews(); }
   if (name === 'calendar') loadCalendar();
   if (name === 'realtime') loadRealtimeScreen();
-  if (name === 'table')    loadTableData();
+  if (name === 'table')    loadStatsDashboard();
   if (name === 'squad')    loadSquadData();
 }
 
@@ -897,31 +897,231 @@ function openArticle(encodedLink) {
 }
 
 // ── TABELA ───────────────────────────────
-async function loadTableData() {
-  const container = document.getElementById('table-content');
+async function loadStatsDashboard() {
+  const container = document.getElementById('stats-dashboard-content');
   if (!container) return;
 
   const loadedAt = Number(container.dataset.loadedAt) || 0;
   if (Date.now() - loadedAt < TTL_MS) return;
 
-  container.innerHTML = `<div class="api-loading"><div class="loading-spinner"></div><p>Carregando tabela...</p></div>`;
+  container.innerHTML = `<div class="api-loading"><div class="loading-spinner"></div><p>Analisando desempenho tricolor...</p></div>`;
 
-  const data = await apiFetch(`lookuptable.php?l=${LEAGUE_ID}&s=2026`);
-  if (!data?.table?.length) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><p>Tabela não disponível</p></div>`;
-    return;
+  try {
+    const [tableRes, espnStats, lastRes] = await Promise.all([
+      apiFetch(`lookuptable.php?l=${LEAGUE_ID}&s=2026`),
+      fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/statistics').then(r => r.json()),
+      apiFetch(`eventslast.php?id=${FLU_ID}`)
+    ]);
+
+    if (!tableRes?.table?.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><p>Estatísticas não disponíveis</p></div>`;
+      return;
+    }
+
+    const flu = tableRes.table.find(t => t.idTeam == FLU_ID);
+    if (!flu) {
+      container.innerHTML = `<div class="empty-state"><p>Fluminense não encontrado na tabela atual.</p></div>`;
+      return;
+    }
+
+    // Pre-cache badges for the full table view
+    tableRes.table.forEach(t => {
+      if (!BADGE_CACHE[t.idTeam] && t.strBadge) BADGE_CACHE[t.idTeam] = t.strBadge;
+    });
+
+    renderStatsDashboard(flu, espnStats, lastRes?.results?.slice(0, 3) || []);
+    renderFullTable(tableRes.table);
+    
+    container.dataset.loadedAt = String(Date.now());
+  } catch (err) {
+    console.error('Error loading stats:', err);
+    container.innerHTML = `<div class="empty-state"><p>Erro ao carregar estatísticas.</p></div>`;
+  }
+}
+
+function renderStatsDashboard(flu, espn, lastMatches) {
+  const container = document.getElementById('stats-dashboard-content');
+  
+  // 1. Calculate General Summary
+  const winPercent = ((parseInt(flu.intWin) * 3 + parseInt(flu.intDraw)) / (parseInt(flu.intPlayed) * 3) * 100).toFixed(1);
+  const gp = parseInt(flu.intGoalsFor);
+  const gc = parseInt(flu.intGoalsAgainst);
+  
+  // 2. Extract Player Stats (ESPN)
+  const getLeader = (categoryName) => {
+    const cat = espn.stats?.find(s => s.displayName === categoryName);
+    if (!cat) return [];
+    // Filter for Fluminense (team id 3445)
+    return (cat.athletes || [])
+      .filter(a => a.team?.id === '3445')
+      .slice(0, 3)
+      .map(a => ({
+        name: a.athlete.displayName,
+        val: a.displayValue,
+        photo: a.athlete.headshot?.href
+      }));
+  };
+
+  const scorers = getLeader('Goals');
+  const assisters = getLeader('Assists');
+  
+  // 3. Build HTML
+  let html = `<div class="stats-dashboard">`;
+
+  // Brand Header
+  html += `
+    <div class="stats-brand-header">
+      <div class="brand-crest">
+        <img src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg" alt="Fluminense" />
+      </div>
+      <div class="brand-info">
+        <h2 class="brand-name">Fluminense Football Club</h2>
+        <p class="brand-sub">Temporada 2026 · Brasil</p>
+      </div>
+    </div>
+  `;
+  
+  // Summary Grid
+  html += `
+    <div class="stats-summary-grid">
+      <div class="stats-summary-card">
+        <span class="label">Aproveitamento</span>
+        <span class="value">${winPercent}%</span>
+      </div>
+      <div class="stats-summary-card">
+        <span class="label">Posição</span>
+        <span class="value">${flu.intRank}º</span>
+      </div>
+      <div class="stats-summary-card">
+        <span class="label">Gols Pró</span>
+        <span class="value">${gp}</span>
+      </div>
+      <div class="stats-summary-card">
+        <span class="label">Gols Contra</span>
+        <span class="value">${gc}</span>
+      </div>
+    </div>
+  `;
+
+  // Team Moment
+  html += `
+    <div class="stats-team-moment">
+      <div class="stats-section-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        Momento Atual
+      </div>
+      <div class="stats-detail-grid">
+        <div class="stats-detail-mini">
+          <span class="label">Vitórias</span>
+          <span class="val">${flu.intWin}</span>
+        </div>
+        <div class="stats-detail-mini">
+          <span class="label">Derrotas</span>
+          <span class="val">${flu.intLoss}</span>
+        </div>
+      </div>
+      <div class="form-row">
+        ${(flu.strForm || '').split('').map(f => `<span class="form-dot ${f.toLowerCase()}">${f}</span>`).join('')}
+      </div>
+    </div>
+  `;
+
+  // Recent Results with Scores
+  if (lastMatches && lastMatches.length > 0) {
+    html += `
+      <div class="stats-results-card">
+        <div class="stats-section-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 9v12"/></svg>
+          Resultados Recentes
+        </div>
+        <div class="stats-results-list">
+          ${lastMatches.map(m => {
+            const isFluHome = m.idHomeTeam == FLU_ID;
+            const fluScore  = isFluHome ? m.intHomeScore : m.intAwayScore;
+            const oppScore  = isFluHome ? m.intAwayScore : m.intHomeScore;
+            const oppName   = isFluHome ? m.strAwayTeam : m.strHomeTeam;
+            const status    = fluScore > oppScore ? 'V' : (fluScore == oppScore ? 'E' : 'D');
+            const statusCls = status.toLowerCase();
+            return `
+              <div class="stats-result-row">
+                <div class="result-status-sm ${statusCls}">${status}</div>
+                <div class="result-teams-sm">
+                  <span class="flu-name">Flu</span>
+                  <span class="score-line">${fluScore} × ${oppScore}</span>
+                  <span class="opp-name">${oppName}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
   }
 
-  const teams = data.table.slice(0, 20);
-  // Pre-populate cache from table payload (avoids 20 extra lookupteam calls)
-  // Table API uses strBadge (already includes /tiny), not strTeamBadge
-  teams.forEach(t => {
-    if (!BADGE_CACHE[t.idTeam] && t.strBadge)
-      BADGE_CACHE[t.idTeam] = t.strBadge;
-  });
-  await Promise.all(teams.map(t => getTeamBadge(t.idTeam)));
+  // Scorers
+  if (scorers.length) {
+    html += `
+      <div>
+        <div class="stats-section-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/></svg>
+          Artilharia do Elenco
+        </div>
+        <div class="stats-leaders-card">
+          ${scorers.map((s, i) => `
+            <div class="stats-leader-item">
+              <span class="leader-rank">${i+1}</span>
+              <div class="leader-info">
+                <div class="leader-name-row">
+                  <span class="leader-name">${s.name}</span>
+                  <span class="leader-val">${s.val} gols</span>
+                </div>
+                <div class="leader-bar-bg">
+                  <div class="leader-bar-fill" style="width: ${(parseInt(s.val) / parseInt(scorers[0].val) * 100)}%"></div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
 
-  container.dataset.loadedAt = String(Date.now());
+  // Assists
+  if (assisters.length) {
+    html += `
+      <div style="margin-top:10px">
+        <div class="stats-section-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Líderes em Assistência
+        </div>
+        <div class="stats-leaders-card">
+          ${assisters.map((s, i) => `
+            <div class="stats-leader-item">
+              <span class="leader-rank">${i+1}</span>
+              <div class="leader-info">
+                <div class="leader-name-row">
+                  <span class="leader-name">${s.name}</span>
+                  <span class="leader-val">${s.val} passes</span>
+                </div>
+                <div class="leader-bar-bg">
+                  <div class="leader-bar-fill" style="width: ${(parseInt(s.val) / (parseInt(assisters[0].val) || 1) * 100)}%; background:#33603B;"></div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function renderFullTable(teams) {
+  const container = document.getElementById('table-content');
+  if (!container) return;
+
   container.innerHTML = `
     <table class="standings-table">
       <thead>
@@ -950,8 +1150,23 @@ async function loadTableData() {
             </tr>`;
         }).join('')}
       </tbody>
-    </table>
-    <div style="height:20px"></div>`;
+    </table>`;
+}
+
+function toggleFullTable() {
+  const view = document.getElementById('table-full-view');
+  const btn = document.getElementById('toggle-full-table');
+  if (!view || !btn) return;
+  
+  const isHidden = view.classList.contains('hidden');
+  if (isHidden) {
+    view.classList.remove('hidden');
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px"><path d="M18 15l-6-6-6 6"/></svg> Recolher Tabela`;
+    view.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    view.classList.add('hidden');
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M3 15h18M9 9v12" /></svg> Ver Tabela de Classificação`;
+  }
 }
 
 // ── ELENCO ───────────────────────────────
