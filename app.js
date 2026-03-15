@@ -131,7 +131,10 @@ async function renderNextMatchCard(ev) {
   const isFluHome = ev.idHomeTeam == FLU_ID;
   const oppId     = isFluHome ? ev.idAwayTeam : ev.idHomeTeam;
   const oppName   = isFluHome ? ev.strAwayTeam : ev.strHomeTeam;
-  const oppBadge  = await getTeamBadge(oppId);
+  // Use badge embedded in event payload — avoids lookupteam which returns wrong data
+  const rawBadge  = isFluHome ? ev.strAwayTeamBadge : ev.strHomeTeamBadge;
+  const oppBadge  = rawBadge || await getTeamBadge(oppId);
+  if (rawBadge) BADGE_CACHE[oppId] = rawBadge;
 
   const d       = parseEventDate(ev);
   const dateStr = fmtShortDate(d);
@@ -144,7 +147,7 @@ async function renderNextMatchCard(ev) {
   setText('next-match-venue', `${ev.strVenue || 'A confirmar'} · Brasil`);
 
   const badgeEl = document.getElementById('next-opp-badge');
-  if (badgeEl && oppBadge) badgeEl.src = oppBadge.replace('/tiny', '/small');
+  if (badgeEl) badgeEl.src = oppBadge ? oppBadge.replace('/tiny', '') : '';
 }
 
 function renderLastResults(results) {
@@ -192,11 +195,13 @@ async function loadCalendar() {
     return;
   }
 
-  // Pre-fetch all opponent badges
-  const oppIds = [...new Set(data.events.map(ev =>
-    ev.idHomeTeam == FLU_ID ? ev.idAwayTeam : ev.idHomeTeam
-  ))];
-  await Promise.all(oppIds.map(id => getTeamBadge(id)));
+  // Pre-populate cache from event badges (more reliable than lookupteam)
+  data.events.forEach(ev => {
+    const isFluHome = ev.idHomeTeam == FLU_ID;
+    const oppId     = isFluHome ? ev.idAwayTeam : ev.idHomeTeam;
+    const badge     = isFluHome ? ev.strAwayTeamBadge : ev.strHomeTeamBadge;
+    if (badge && !BADGE_CACHE[oppId]) BADGE_CACHE[oppId] = badge;
+  });
 
   // Group by month
   const byMonth = {};
@@ -222,7 +227,7 @@ async function loadCalendar() {
       const isFluHome = ev.idHomeTeam == FLU_ID;
       const oppId     = isFluHome ? ev.idAwayTeam : ev.idHomeTeam;
       const oppName   = isFluHome ? ev.strAwayTeam : ev.strHomeTeam;
-      const oppBadge  = BADGE_CACHE[oppId] || '';
+      const oppBadge  = (isFluHome ? ev.strAwayTeamBadge : ev.strHomeTeamBadge) || BADGE_CACHE[oppId] || '';
       const timeStr   = fmtTime(ev.strTime);
       const nextTag   = isFirst ? '<span class="next-tag">Próximo</span>' : '';
       const nextClass = isFirst ? 'next-match-item' : '';
