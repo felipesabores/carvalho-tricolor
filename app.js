@@ -359,7 +359,8 @@ async function loadRealtimeScreen() {
     livePollingInterval = setInterval(async () => {
       // SMART POLLING: Do not fetch if page is hidden
       if (!isPageVisible || currentScreen !== 'realtime') return;
-      await loadLiveData(liveEventId);
+      const matchEnded = await loadLiveData(liveEventId);
+      if (matchEnded) stopLivePolling();
     }, 30000);
   }
 }
@@ -405,6 +406,11 @@ async function loadLiveData(eventId) {
   // ESPN summary contains both Rosters and Stats (boxscore)
   if (espnSummary?.boxscore)      updateStatsESPN(espnSummary.boxscore);
   if (espnSummary?.rosters)       renderLiveLineups(espnSummary.rosters, ev);
+  
+  // Return true if match has ended so polling can stop
+  const espnState = espnSummary?.header?.competitions?.[0]?.status?.type?.state;
+  const isFinished = espnState === 'post' || ev?.strStatus === 'Match Finished' || ev?.strStatus === 'Ended';
+  return isFinished;
 }
 
 // Global cached summary to avoid duplicate calls
