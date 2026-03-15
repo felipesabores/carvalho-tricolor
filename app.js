@@ -373,11 +373,18 @@ async function loadLiveData(eventId) {
     fetchESPNSummary()
   ]);
 
-  if (evData?.events?.[0])        updateScoreboard(evData.events[0]);
+  if (evData?.events?.[0]) {
+    // Check if ESPN has a live ticking clock in the header
+    const liveClock = espnSummary?.header?.competitions?.[0]?.status?.displayClock;
+    updateScoreboard(evData.events[0], liveClock);
+  }
   
   const ev = evData?.events?.[0];
   
-  if (espnScoreboard?.length) {
+  // Prefer ESPN's rich commentary play-by-play. Fallback to basic scoreboard events.
+  if (espnSummary?.commentary?.length) {
+    updateTimelineESPN(espnSummary.commentary, ev);
+  } else if (espnScoreboard?.length) {
     updateTimelineESPN(espnScoreboard, ev);
   } else if (ev) {
     // Fallback to TheSportsDB timeline if ESPN is empty
@@ -445,25 +452,32 @@ function updateTimelineESPN(details, ev) {
   const sorted = [...details].sort((a, b) => (b.clock?.value || 0) - (a.clock?.value || 0)); // Descending so newest is on top
 
   container.innerHTML = sorted.map((d, index) => {
-    const min    = d.clock?.displayValue || '—';
+    const min    = d.clock?.displayValue || d.time?.displayValue || '—';
     const type   = (d.type?.text || '').toLowerCase();
-    const player = d.athletesInvolved?.[0]?.displayName || '';
-    const player2 = d.athletesInvolved?.[1]?.displayName || '';
+    
+    // Commentary uses "participants". Scoreboard uses "athletesInvolved"
+    const p1 = d.participants?.[0]?.athlete?.displayName || d.athletesInvolved?.[0]?.displayName || '';
+    const p2 = d.participants?.[1]?.athlete?.displayName || d.athletesInvolved?.[1]?.displayName || '';
+    
+    // If it's a generic commentary without a specific type label but it has a title
     const text   = d.text || d.shortText || '';
-    const isFlu  = d.team?.id === FLU_ESPN;
+    const title  = d.play?.type?.text || d.type?.text || 'LANCE';
+    
+    // Check if Fluminense via ID (scoreboard) or displayName (commentary)
+    const isFlu  = d.team?.id === FLU_ESPN || (d.team?.displayName && d.team.displayName.includes('Fluminense'));
     
     // Add fade-in animation for new elements
     const fadeClass = (index === 0 && d.clock?.value > lastTimelineLength) ? 'fade-in' : '';
 
-    if (type === 'goal' || type.includes('goal')) return tlGoal(min, player, player2, isFlu, text, fadeClass);
-    if (type.includes('yellow'))                  return tlYellow(min, player, !isFlu, text, fadeClass);
-    if (type.includes('red'))                     return tlRed(min, player, !isFlu, text, fadeClass);
-    if (type.includes('sub'))                     return tlSub(min, player, player2, text, fadeClass);
+    if (type === 'goal' || type.includes('goal')) return tlGoal(min, p1, p2, isFlu, text, fadeClass);
+    if (type.includes('yellow'))                  return tlYellow(min, p1, !isFlu, text, fadeClass);
+    if (type.includes('red'))                     return tlRed(min, p1, !isFlu, text, fadeClass);
+    if (type.includes('sub'))                     return tlSub(min, p1, p2, text, fadeClass);
     
     // If it has text but no specific type, treat it as play-by-play
-    if (text) return tlGeneric(min, d.type?.text || 'Lance', text, fadeClass);
+    if (text) return tlGeneric(min, title, text, fadeClass);
     
-    return tlGeneric(min, d.type?.text, player, fadeClass);
+    return tlGeneric(min, title, p1, fadeClass);
   }).join('');
   
   if (sorted[0]?.clock?.value > lastTimelineLength) {
@@ -471,7 +485,7 @@ function updateTimelineESPN(details, ev) {
   }
 }
 
-async function updateScoreboard(ev) {
+async function updateScoreboard(ev, liveClock = null) {
   const isFluHome = ev.idHomeTeam == FLU_ID;
   const fluScore  = isFluHome ? (ev.intHomeScore ?? '—') : (ev.intAwayScore ?? '—');
   const oppScore  = isFluHome ? (ev.intAwayScore ?? '—') : (ev.intHomeScore ?? '—');
@@ -487,9 +501,13 @@ async function updateScoreboard(ev) {
 
   if (fluScoreEl) fluScoreEl.textContent = fluScore;
   if (oppScoreEl) oppScoreEl.textContent = oppScore;
-  if (periodEl)   periodEl.textContent   = ev.strProgress || ev.strStatus || '—';
   if (compEl)     compEl.textContent     = `${ev.strLeague} · ${ev.strVenue || ''}`;
   if (oppNames[1]) oppNames[1].textContent = oppName;
+
+  if (periodEl) {
+    // Use ESPN live ticking clock if available, else fallback to TheSportsDB static status
+    periodEl.textContent = liveClock || ev.strProgress || ev.strStatus || '—';
+  }
 
   // Check for Goal Animation
   if (lastKnownFluScore !== null && fluScore !== '—' && parseInt(fluScore) > lastKnownFluScore) {
@@ -644,9 +662,10 @@ function updateTimeline(timeline) {
 }
 
 function tlGoal(time, player, assist, isFlu, text = '', fadeClass = '') {
+  const tStr = String(time).includes("'") ? time : time + "'";
   return `
     <div class="timeline-item goal-item ${fadeClass}">
-      <div class="timeline-time">${time}'</div>
+      <div class="timeline-time">${tStr}</div>
       <div class="timeline-connector">
         <div class="timeline-dot goal-dot">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="10" fill="none" stroke="white" stroke-width="2"/><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="white"/></svg>
@@ -666,9 +685,10 @@ function tlGoal(time, player, assist, isFlu, text = '', fadeClass = '') {
 }
 
 function tlYellow(time, player, isOpp, text = '', fadeClass = '') {
+  const tStr = String(time).includes("'") ? time : time + "'";
   return `
     <div class="timeline-item ${fadeClass}">
-      <div class="timeline-time">${time}'</div>
+      <div class="timeline-time">${tStr}</div>
       <div class="timeline-connector">
         <div class="timeline-dot yellow-dot">
           <svg width="10" height="13" viewBox="0 0 10 13" fill="none"><rect width="10" height="13" rx="1" fill="#F7C01B"/></svg>
@@ -686,9 +706,10 @@ function tlYellow(time, player, isOpp, text = '', fadeClass = '') {
 }
 
 function tlRed(time, player, isOpp, text = '', fadeClass = '') {
+  const tStr = String(time).includes("'") ? time : time + "'";
   return `
     <div class="timeline-item ${fadeClass}">
-      <div class="timeline-time">${time}'</div>
+      <div class="timeline-time">${tStr}</div>
       <div class="timeline-connector">
         <div class="timeline-dot red-dot">
           <svg width="10" height="13" viewBox="0 0 10 13" fill="none"><rect width="10" height="13" rx="1" fill="#fff"/></svg>
@@ -706,9 +727,10 @@ function tlRed(time, player, isOpp, text = '', fadeClass = '') {
 }
 
 function tlSub(time, out, in_, text = '', fadeClass = '') {
+  const tStr = String(time).includes("'") ? time : time + "'";
   return `
     <div class="timeline-item ${fadeClass}">
-      <div class="timeline-time">${time}'</div>
+      <div class="timeline-time">${tStr}</div>
       <div class="timeline-connector">
         <div class="timeline-dot sub-dot">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
@@ -724,9 +746,10 @@ function tlSub(time, out, in_, text = '', fadeClass = '') {
 }
 
 function tlGeneric(time, type, text, fadeClass = '') {
+  const tStr = String(time).includes("'") ? time : time + "'";
   return `
     <div class="timeline-item ${fadeClass}">
-      <div class="timeline-time">${time}'</div>
+      <div class="timeline-time">${tStr}</div>
       <div class="timeline-connector">
         <div class="timeline-dot kickoff-dot">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="8" fill="none" stroke="white" stroke-width="2"/><polygon points="10,8 16,12 10,16" fill="white"/></svg>
