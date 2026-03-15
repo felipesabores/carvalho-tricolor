@@ -13,6 +13,14 @@ const RSS_API = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURICompone
 const BADGE_CACHE = { [FLU_ID]: FLU_BADGE };
 const NEWS_CACHE  = {};
 
+const TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+// newsLoadedAt = 0 means never loaded; checked against Date.now() for TTL
+let newsLoadedAt = 0;
+
+let currentScreen = 'login';
+let liveEventId   = null;
+
 const ROUTES = {
   login:    'screen-login',
   home:     'screen-home',
@@ -23,11 +31,6 @@ const ROUTES = {
   table:    'screen-table',
   squad:    'screen-squad',
 };
-
-let newsLoaded = false;
-
-let currentScreen = 'login';
-let liveEventId   = null;
 
 // ── NAVIGATION ──────────────────────────
 function goTo(name) {
@@ -77,11 +80,15 @@ function toggleChange(input) {
 
 // ── API ──────────────────────────────────
 async function apiFetch(endpoint) {
+  const ctrl  = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
   try {
-    const res = await fetch(`${API}/${endpoint}`);
+    const res = await fetch(`${API}/${endpoint}`, { signal: ctrl.signal });
+    clearTimeout(timer);
     if (!res.ok) throw new Error(res.status);
     return await res.json();
   } catch (e) {
+    clearTimeout(timer);
     console.warn('[API]', endpoint, e.message);
     return null;
   }
@@ -156,8 +163,10 @@ function renderLastResults(results) {
 
   list.innerHTML = results.map(r => {
     const isFluHome = r.idHomeTeam == FLU_ID;
-    const fluScore  = parseInt(isFluHome ? r.intHomeScore : r.intAwayScore) ?? '?';
-    const oppScore  = parseInt(isFluHome ? r.intAwayScore : r.intHomeScore) ?? '?';
+    const fluScore  = parseInt(isFluHome ? r.intHomeScore : r.intAwayScore);
+    const oppScore  = parseInt(isFluHome ? r.intAwayScore : r.intHomeScore);
+    const fluDisp   = isNaN(fluScore) ? '?' : fluScore;
+    const oppDisp   = isNaN(oppScore) ? '?' : oppScore;
     const oppName   = isFluHome ? r.strAwayTeam : r.strHomeTeam;
     const won  = fluScore > oppScore;
     const drew = fluScore === oppScore;
@@ -169,7 +178,7 @@ function renderLastResults(results) {
       <div class="result-item">
         <div class="result-badge ${cls}">${lbl}</div>
         <div class="result-info">
-          <span class="result-teams">Flu ${fluScore} × ${oppScore} ${oppName}</span>
+          <span class="result-teams">Flu ${fluDisp} × ${oppDisp} ${oppName}</span>
           <span class="result-meta">${r.strLeague} · ${date}</span>
         </div>
       </div>`;
@@ -328,7 +337,10 @@ async function updateScoreboard(ev) {
   if (compEl)     compEl.textContent     = `${ev.strLeague} · ${ev.strVenue || ''}`;
   if (oppNames[1]) oppNames[1].textContent = oppName;
 
-  const oppBadge = await getTeamBadge(oppId);
+  // Use badge from event payload first, fall back to cache/lookup
+  const rawBadge = isFluHome ? ev.strAwayTeamBadge : ev.strHomeTeamBadge;
+  const oppBadge = rawBadge || await getTeamBadge(oppId);
+  if (rawBadge) BADGE_CACHE[oppId] = rawBadge;
   if (oppBadgeEl && oppBadge) oppBadgeEl.src = oppBadge.replace('/tiny', '/small');
 }
 
@@ -344,7 +356,8 @@ function updateTimeline(timeline) {
   const container = document.getElementById('live-timeline');
   if (!container || !timeline.length) return;
 
-  const sorted = [...timeline].sort((a, b) => (parseInt(b.intTime) || 0) - (parseInt(a.intTime) || 0));
+  // Ascending order: earliest events at top
+  const sorted = [...timeline].sort((a, b) => (parseInt(a.intTime) || 0) - (parseInt(b.intTime) || 0));
 
   container.innerHTML = sorted.map(ev => {
     const isFlu = ev.idTeam == FLU_ID;
@@ -406,14 +419,14 @@ function tlRed(time, player, isOpp) {
     <div class="timeline-item">
       <div class="timeline-time">${time}'</div>
       <div class="timeline-connector">
-        <div class="timeline-dot" style="background:#CC0000;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+        <div class="timeline-dot red-dot">
           <svg width="10" height="13" viewBox="0 0 10 13" fill="none"><rect width="10" height="13" rx="1" fill="#fff"/></svg>
         </div>
         <div class="timeline-line"></div>
       </div>
       <div class="timeline-card">
         <div class="event-type-row">
-          <span class="event-type" style="color:#CC0000;font-size:10px;font-weight:800;text-transform:uppercase">Cartão Vermelho</span>
+          <span class="event-type red-type">Cartão Vermelho</span>
           <span class="event-scorer ${isOpp ? 'opp-player' : ''}">${player}</span>
         </div>
       </div>
@@ -432,7 +445,7 @@ function tlSub(time, out, in_) {
       </div>
       <div class="timeline-card">
         <div class="event-type-row"><span class="event-type sub-type">Substituição</span></div>
-        <p class="event-desc"><strong style="color:#33603B">↑ ${in_ || '—'}</strong> entra no lugar de <strong style="color:#727175">↓ ${out || '—'}</strong></p>
+        <p class="event-desc"><strong class="sub-in">↑ ${in_ || '—'}</strong> entra no lugar de <strong class="sub-out">↓ ${out || '—'}</strong></p>
       </div>
     </div>`;
 }
@@ -480,8 +493,7 @@ function renderHighlights(highlights) {
 
 // ── RSS NEWS ─────────────────────────────
 async function loadRSSNews() {
-  if (newsLoaded) return;
-  newsLoaded = true;
+  if (Date.now() - newsLoadedAt < TTL_MS) return;
 
   const list = document.getElementById('news-list');
   if (!list) return;
@@ -489,22 +501,28 @@ async function loadRSSNews() {
   const BG = ['#6E182C','#33603B','#4D0A21','#4D6B8A','#6E182C'];
   const GLOBE_ICON = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
 
+  const ctrl  = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+
   try {
-    const res  = await fetch(RSS_API);
+    const res  = await fetch(RSS_API, { signal: ctrl.signal });
+    clearTimeout(timer);
     const data = await res.json();
     if (!data?.items?.length) throw new Error('empty');
 
+    newsLoadedAt = Date.now();
     const items = data.items.slice(0, 5);
-    items.forEach((item, i) => { NEWS_CACHE[i] = item; });
+    // Key by link so cache is stable across refreshes
+    items.forEach(item => { NEWS_CACHE[item.link] = item; });
 
     list.innerHTML = items.map((item, i) => {
       const title  = item.title.replace(/ [-–] [^-–]+$/, '');
-      const source = item.title.match(/ [-–] ([^-–]+)$$/)?.[1] || item.author || 'Notícia';
+      const source = item.title.match(/ [-–] ([^-–]+)$/)?.[1] || item.author || 'Notícia';
       const date   = new Date(item.pubDate);
       const dateStr = `${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}`;
       const bg = BG[i % BG.length];
       return `
-        <div class="news-card" onclick="openArticle(${i})">
+        <div class="news-card" onclick="openArticle('${encodeURIComponent(item.link)}')">
           <div class="news-img-wrap">
             <div class="news-img" style="background:linear-gradient(135deg,${bg} 0%,${bg}aa 100%);">
               ${GLOBE_ICON}
@@ -514,22 +532,24 @@ async function loadRSSNews() {
             <span class="news-tag">${source}</span>
             <h3 class="news-title-card">${title}</h3>
             <p class="news-desc">${dateStr}</p>
-            <a class="news-link" onclick="openArticle(${i}); return false;">Ler mais →</a>
+            <a class="news-link" onclick="openArticle('${encodeURIComponent(item.link)}'); return false;">Ler mais →</a>
           </div>
         </div>`;
     }).join('');
   } catch(e) {
-    newsLoaded = false; // allow retry
+    clearTimeout(timer);
+    // Don't set newsLoadedAt so next visit retries
     list.innerHTML = `<div class="empty-state"><div class="empty-icon">📰</div><p>Não foi possível carregar as notícias</p></div>`;
   }
 }
 
-function openArticle(idx) {
-  const item = NEWS_CACHE[idx];
+function openArticle(encodedLink) {
+  const link = decodeURIComponent(encodedLink);
+  const item = NEWS_CACHE[link];
   if (!item) { goTo('article'); return; }
 
   const title  = item.title.replace(/ [-–] [^-–]+$/, '');
-  const source = item.title.match(/ [-–] ([^-–]+)$$/)?.[1] || item.author || '';
+  const source = item.title.match(/ [-–] ([^-–]+)$/)?.[1] || item.author || '';
   const date   = new Date(item.pubDate);
   const dateStr = date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
   const desc   = item.description?.replace(/<[^>]*>/g, '') || 'Clique abaixo para ler a notícia completa.';
@@ -555,7 +575,10 @@ function openArticle(idx) {
 // ── TABELA ───────────────────────────────
 async function loadTableData() {
   const container = document.getElementById('table-content');
-  if (!container || container.dataset.loaded) return;
+  if (!container) return;
+
+  const loadedAt = Number(container.dataset.loadedAt) || 0;
+  if (Date.now() - loadedAt < TTL_MS) return;
 
   container.innerHTML = `<div class="api-loading"><div class="loading-spinner"></div><p>Carregando tabela...</p></div>`;
 
@@ -574,7 +597,7 @@ async function loadTableData() {
   });
   await Promise.all(teams.map(t => getTeamBadge(t.idTeam)));
 
-  container.dataset.loaded = '1';
+  container.dataset.loadedAt = String(Date.now());
   container.innerHTML = `
     <table class="standings-table">
       <thead>
@@ -610,7 +633,10 @@ async function loadTableData() {
 // ── ELENCO ───────────────────────────────
 async function loadSquadData() {
   const container = document.getElementById('squad-content');
-  if (!container || container.dataset.loaded) return;
+  if (!container) return;
+
+  const loadedAt = Number(container.dataset.loadedAt) || 0;
+  if (Date.now() - loadedAt < TTL_MS) return;
 
   container.innerHTML = `<div class="api-loading"><div class="loading-spinner"></div><p>Carregando elenco...</p></div>`;
 
@@ -634,7 +660,7 @@ async function loadSquadData() {
     groups[key].push(p);
   }
 
-  container.dataset.loaded = '1';
+  container.dataset.loadedAt = String(Date.now());
   let html = '';
   for (const [key, { label, icon }] of Object.entries(POS_MAP)) {
     const players = groups[key] || [];

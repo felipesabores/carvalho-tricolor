@@ -361,6 +361,9 @@ body {
   width: 28px; height: 4px;
   border-radius: 2px;
 }
+.stripe-grenade { background: var(--c-grenade); }
+.stripe-white   { background: #fff; border: 1px solid #eee; }
+.stripe-green   { background: var(--c-green); }
 .login-footer p { font-size: 10px; color: #b0b0b0; }
 
 /* ════════════════════════════════════════
@@ -799,6 +802,7 @@ body {
 .timeline-line { width: 2px; flex: 1; background: var(--c-surface2); min-height: 16px; margin: 3px 0; }
 .goal-dot    { background: var(--c-green); box-shadow: 0 0 12px rgba(51,96,59,0.4); }
 .yellow-dot  { background: #F7C01B; }
+.red-dot     { background: #CC0000; }
 .sub-dot     { background: #4D6B8A; }
 .opp-goal-dot{ background: #999; }
 .kickoff-dot { background: var(--c-grenade); }
@@ -833,6 +837,7 @@ body {
 }
 .goal-type      { color: var(--c-green); }
 .yellow-type    { color: #B8860B; }
+.red-type       { color: #CC0000; }
 .sub-type       { color: var(--c-input-text); }
 .opp-goal-type  { color: #666; }
 .kickoff-type   { color: var(--c-grenade); }
@@ -840,6 +845,8 @@ body {
 .opp-player     { color: #666; }
 .event-desc { font-size: 11px; color: var(--c-text); line-height: 1.5; }
 .event-assist { font-size: 10px; color: var(--c-input-text); font-weight: 600; margin-top: 5px; }
+.sub-in  { color: var(--c-green); }
+.sub-out { color: var(--c-text); }
 
 /* ════════════════════════════════════════
    SCREEN 5 · ARTICLE
