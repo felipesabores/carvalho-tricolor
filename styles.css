@@ -65,6 +65,7 @@ body {
 
 /* ── SCREENS ── */
 .screen {
+  display: none;
   position: absolute;
   inset: 0;
   background: var(--c-bg);

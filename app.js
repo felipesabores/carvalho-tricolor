@@ -41,7 +41,8 @@ function goTo(name) {
 
   from.classList.remove('active');
   from.classList.add('slide-out');
-  setTimeout(() => from.classList.remove('slide-out'), 300);
+  setTimeout(() => { from.classList.remove('slide-out'); from.style.display = 'none'; }, 300);
+  if (currentScreen === 'realtime') stopLivePolling();
 
   to.style.display = 'flex';
   requestAnimationFrame(() => requestAnimationFrame(() => to.classList.add('active')));
@@ -52,7 +53,7 @@ function goTo(name) {
 
   if (name === 'home')     { loadHomeData(); loadRSSNews(); }
   if (name === 'calendar') loadCalendar();
-  if (name === 'realtime') { startClock(); if (liveEventId) loadLiveData(liveEventId); }
+  if (name === 'realtime') loadRealtimeScreen();
   if (name === 'table')    loadTableData();
   if (name === 'squad')    loadSquadData();
 }
@@ -309,18 +310,89 @@ function selectEvent(eventId) {
 }
 
 // ── REALTIME ─────────────────────────────
+const LIVE_STATUSES = ['1H','2H','HT','ET','PEN','Live','In Progress'];
+let livePollingInterval = null;
+
+function stopLivePolling() {
+  if (livePollingInterval) { clearInterval(livePollingInterval); livePollingInterval = null; }
+}
+
+async function loadRealtimeScreen() {
+  // Always resolve current event from API (works even if home was never visited)
+  const data = await apiFetch(`eventsnext.php?id=${FLU_ID}`);
+  const ev   = data?.events?.[0];
+  if (!ev) return;
+
+  liveEventId = ev.idEvent;
+  const isLive = LIVE_STATUSES.some(s => (ev.strStatus || '').includes(s));
+
+  await loadLiveData(liveEventId);
+  startClock();
+
+  stopLivePolling();
+  if (isLive) {
+    livePollingInterval = setInterval(async () => {
+      if (currentScreen !== 'realtime') { stopLivePolling(); return; }
+      await loadLiveData(liveEventId);
+    }, 30000);
+  }
+}
+
 async function loadLiveData(eventId) {
-  const [evData, statsData, timelineData, hlData] = await Promise.all([
+  const [evData, statsData, hlData, espnScoreboard] = await Promise.all([
     apiFetch(`lookupevent.php?id=${eventId}`),
     apiFetch(`lookupeventstats.php?id=${eventId}`),
-    apiFetch(`lookuptimeline.php?id=${eventId}`),
     apiFetch(`eventshighlights.php?e=${eventId}`),
+    fetchESPNDetails(),
   ]);
 
-  if (evData?.events?.[0])       updateScoreboard(evData.events[0]);
-  if (statsData?.eventstats)     updateStats(statsData.eventstats);
-  if (timelineData?.timeline)    updateTimeline(timelineData.timeline);
+  if (evData?.events?.[0])        updateScoreboard(evData.events[0]);
+  if (statsData?.eventstats)      updateStats(statsData.eventstats);
+  if (espnScoreboard?.length)     updateTimelineESPN(espnScoreboard, evData?.events?.[0]);
   if (hlData?.highlights?.length) renderHighlights(hlData.highlights);
+}
+
+async function fetchESPNDetails() {
+  try {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 8000);
+    const res  = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/scoreboard', { signal: ctrl.signal });
+    clearTimeout(tid);
+    const json = await res.json();
+    const event = (json.events || []).find(e =>
+      e.competitions?.[0]?.competitors?.some(c => c.team?.id === '3445')
+    );
+    return event?.competitions?.[0]?.details || null;
+  } catch { return null; }
+}
+
+function updateTimelineESPN(details, ev) {
+  const container = document.getElementById('live-timeline');
+  if (!container) return;
+  if (!details?.length) {
+    container.innerHTML = `<p style="padding:16px;color:var(--c-text-muted);text-align:center">Sem lances disponíveis</p>`;
+    return;
+  }
+
+  // Determine which ESPN team ID is Fluminense (home team ID = 3445)
+  const FLU_ESPN = '3445';
+  const isFluHome = ev ? ev.idHomeTeam == FLU_ID : true;
+
+  const sorted = [...details].sort((a, b) => (a.clock?.value || 0) - (b.clock?.value || 0));
+
+  container.innerHTML = sorted.map(d => {
+    const min    = d.clock?.displayValue || '—';
+    const type   = (d.type?.text || '').toLowerCase();
+    const player = d.athletesInvolved?.[0]?.displayName || '';
+    const player2 = d.athletesInvolved?.[1]?.displayName || '';
+    const isFlu  = d.team?.id === FLU_ESPN;
+
+    if (type === 'goal' || type.includes('goal')) return tlGoal(min, player, player2, isFlu);
+    if (type.includes('yellow'))                  return tlYellow(min, player, !isFlu);
+    if (type.includes('red'))                     return tlRed(min, player, !isFlu);
+    if (type.includes('sub'))                     return tlSub(min, player, player2);
+    return tlGeneric(min, d.type?.text, player);
+  }).join('');
 }
 
 async function updateScoreboard(ev) {
@@ -637,6 +709,8 @@ async function loadTableData() {
 }
 
 // ── ELENCO ───────────────────────────────
+const ESPN_ROSTER_URL = 'https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/teams/3445/roster';
+
 async function loadSquadData() {
   const container = document.getElementById('squad-content');
   if (!container) return;
@@ -646,23 +720,35 @@ async function loadSquadData() {
 
   container.innerHTML = `<div class="api-loading"><div class="loading-spinner"></div><p>Carregando elenco...</p></div>`;
 
-  const data = await apiFetch(`lookup_all_players.php?id=${FLU_ID}`);
-  const activePlayers = data?.player?.filter(p => p.strStatus === 'Active') || [];
-  if (!activePlayers.length) {
+  let athletes = [];
+  try {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 8000);
+    const res  = await fetch(ESPN_ROSTER_URL, { signal: ctrl.signal });
+    clearTimeout(tid);
+    const json = await res.json();
+    // ESPN returns { athletes: [...] } where each athlete has displayName, jersey, position.displayName, age
+    athletes = json.athletes || [];
+  } catch (e) {
+    console.warn('ESPN roster fetch failed:', e);
+  }
+
+  if (!athletes.length) {
     container.innerHTML = `<div class="empty-state"><div class="empty-icon">👕</div><p>Elenco não disponível</p></div>`;
     return;
   }
 
   const POS_MAP = {
-    'Goalkeeper': { label: 'Goleiros',        icon: '🧤', order: 0 },
-    'Defender':   { label: 'Defensores',      icon: '🛡️', order: 1 },
-    'Midfielder': { label: 'Meio-Campistas',  icon: '⚙️', order: 2 },
-    'Forward':    { label: 'Atacantes',       icon: '⚡', order: 3 },
+    'Goalkeeper': { label: 'Goleiros',        icon: '🧤' },
+    'Defender':   { label: 'Defensores',      icon: '🛡️' },
+    'Midfielder': { label: 'Meio-Campistas',  icon: '⚙️' },
+    'Forward':    { label: 'Atacantes',       icon: '⚡' },
   };
 
   const groups = {};
-  for (const p of activePlayers) {
-    const key = Object.keys(POS_MAP).find(k => (p.strPosition || '').includes(k)) || 'Midfielder';
+  for (const p of athletes) {
+    const pos = p.position?.displayName || '';
+    const key = Object.keys(POS_MAP).find(k => pos.includes(k)) || 'Midfielder';
     if (!groups[key]) groups[key] = [];
     groups[key].push(p);
   }
@@ -679,28 +765,31 @@ async function loadSquadData() {
         <span class="squad-count">${players.length}</span>
       </div>`;
     html += players.map(p => {
-      const initials = p.strPlayer.split(' ').map(n => n[0]).slice(0, 2).join('');
-      const photo    = p.strCutout || p.strThumb;
+      const name     = p.displayName || p.fullName || '—';
+      const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('');
+      const photo    = p.headshot?.href;
+      const jersey   = p.jersey ? `#${p.jersey}` : '';
+      const age      = p.age ? `${p.age} a` : '';
       return `
         <div class="player-card">
           <div class="player-photo">
             ${photo
-              ? `<img src="${photo}" alt="${p.strPlayer}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+              ? `<img src="${photo}" alt="${name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
               : ''}
             <div class="player-initials"${photo ? ' style="display:none"' : ''}>${initials}</div>
           </div>
           <div class="player-info">
-            <span class="player-name">${p.strPlayer}</span>
-            <span class="player-meta">${p.strNationality || '—'}${p.strNumber ? ' · #' + p.strNumber : ''}</span>
+            <span class="player-name">${name}</span>
+            <span class="player-meta">${p.citizenship || p.nationality || '—'}${jersey ? ' · ' + jersey : ''}</span>
           </div>
-          ${p.dateBorn ? `<span class="player-age">${new Date().getFullYear() - parseInt(p.dateBorn)} a</span>` : ''}
+          ${age ? `<span class="player-age">${age}</span>` : ''}
         </div>`;
     }).join('');
   }
 
   const updatedAt = new Date().toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
   container.innerHTML = html + `
-    <div class="squad-source-note">Fonte: TheSportsDB · ${updatedAt}</div>
+    <div class="squad-source-note">Fonte: ESPN · ${updatedAt}</div>
     <div style="height:20px"></div>`;
 }
 
