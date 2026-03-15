@@ -109,9 +109,15 @@ const MONTHS_FULL   = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
                        'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
 function parseEventDate(ev) {
-  return new Date(`${ev.dateEvent}T${ev.strTime || '12:00:00'}`);
+  // strTimeLocal is the kickoff in the venue's local timezone; fall back to strTime
+  const t = ev.strTimeLocal || ev.strTime || '12:00:00';
+  return new Date(`${ev.dateEvent}T${t}`);
 }
-function fmtTime(str) { return str ? str.slice(0, 5) : '—'; }
+function fmtTime(ev) {
+  // Accept either an event object or a raw time string (legacy)
+  const str = (ev && typeof ev === 'object') ? (ev.strTimeLocal || ev.strTime) : ev;
+  return str ? str.slice(0, 5) : '—';
+}
 function fmtShortDate(d) {
   return `${DAYS_PT[d.getDay()]}, ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
 }
@@ -145,7 +151,7 @@ async function renderNextMatchCard(ev) {
 
   const d       = parseEventDate(ev);
   const dateStr = fmtShortDate(d);
-  const timeStr = fmtTime(ev.strTime);
+  const timeStr = fmtTime(ev);
 
   setText('next-match-comp',  ev.strLeague || '—');
   setText('next-match-date',  dateStr);
@@ -237,7 +243,7 @@ async function loadCalendar() {
       const oppId     = isFluHome ? ev.idAwayTeam : ev.idHomeTeam;
       const oppName   = isFluHome ? ev.strAwayTeam : ev.strHomeTeam;
       const oppBadge  = (isFluHome ? ev.strAwayTeamBadge : ev.strHomeTeamBadge) || BADGE_CACHE[oppId] || '';
-      const timeStr   = fmtTime(ev.strTime);
+      const timeStr   = fmtTime(ev);
       const nextTag   = isFirst ? '<span class="next-tag">Próximo</span>' : '';
       const nextClass = isFirst ? 'next-match-item' : '';
       isFirst = false;
@@ -641,7 +647,8 @@ async function loadSquadData() {
   container.innerHTML = `<div class="api-loading"><div class="loading-spinner"></div><p>Carregando elenco...</p></div>`;
 
   const data = await apiFetch(`lookup_all_players.php?id=${FLU_ID}`);
-  if (!data?.player?.length) {
+  const activePlayers = data?.player?.filter(p => p.strStatus === 'Active') || [];
+  if (!activePlayers.length) {
     container.innerHTML = `<div class="empty-state"><div class="empty-icon">👕</div><p>Elenco não disponível</p></div>`;
     return;
   }
@@ -654,7 +661,7 @@ async function loadSquadData() {
   };
 
   const groups = {};
-  for (const p of data.player) {
+  for (const p of activePlayers) {
     const key = Object.keys(POS_MAP).find(k => (p.strPosition || '').includes(k)) || 'Midfielder';
     if (!groups[key]) groups[key] = [];
     groups[key].push(p);
@@ -691,7 +698,10 @@ async function loadSquadData() {
     }).join('');
   }
 
-  container.innerHTML = html + '<div style="height:20px"></div>';
+  const updatedAt = new Date().toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  container.innerHTML = html + `
+    <div class="squad-source-note">Fonte: TheSportsDB · ${updatedAt}</div>
+    <div style="height:20px"></div>`;
 }
 
 // ── UTILS ────────────────────────────────
