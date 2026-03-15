@@ -195,6 +195,15 @@
         </svg>
         <span>Tempo Real</span>
       </button>
+      <button class="nav-item" onclick="goTo('table')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="3" y1="15" x2="21" y2="15"/>
+          <line x1="9" y1="9" x2="9" y2="21"/>
+        </svg>
+        <span>Classificação</span>
+      </button>
       <button class="nav-item" onclick="goTo('profile')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -224,17 +233,6 @@
     </header>
 
     <main class="screen-content has-header has-bottom-nav">
-
-      <button class="table-shortcut-btn" onclick="goTo('table')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>
-          <line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/>
-        </svg>
-        Ver Tabela do Brasileirão
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:auto">
-          <polyline points="9,18 15,12 9,6"/>
-        </svg>
-      </button>
 
       <div id="calendar-content">
 
@@ -434,6 +432,15 @@
           <polyline points="12,6 12,12 16,14"/>
         </svg>
         <span>Tempo Real</span>
+      </button>
+      <button class="nav-item" onclick="goTo('table')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="3" y1="15" x2="21" y2="15"/>
+          <line x1="9" y1="9" x2="9" y2="21"/>
+        </svg>
+        <span>Classificação</span>
       </button>
       <button class="nav-item" onclick="goTo('profile')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -674,6 +681,15 @@
           <polyline points="12,6 12,12 16,14"/>
         </svg>
         <span>Tempo Real</span>
+      </button>
+      <button class="nav-item" onclick="goTo('table')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="3" y1="15" x2="21" y2="15"/>
+          <line x1="9" y1="9" x2="9" y2="21"/>
+        </svg>
+        <span>Classificação</span>
       </button>
       <button class="nav-item" onclick="goTo('profile')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -974,6 +990,15 @@
         </svg>
         <span>Tempo Real</span>
       </button>
+      <button class="nav-item" onclick="goTo('table')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="3" y1="15" x2="21" y2="15"/>
+          <line x1="9" y1="9" x2="9" y2="21"/>
+        </svg>
+        <span>Classificação</span>
+      </button>
       <button class="nav-item active" onclick="goTo('profile')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -989,16 +1014,12 @@
   ══════════════════════════════════════ -->
   <div class="screen" id="screen-table">
     <header class="app-header">
-      <div class="header-back" onclick="goTo('calendar')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
-          <polyline points="15,18 9,12 15,6"/>
-        </svg>
-      </div>
+      <div style="width:44px"></div>
       <h1 class="header-title">Brasileirão 2026</h1>
       <div style="width:44px"></div>
     </header>
 
-    <main class="screen-content has-header">
+    <main class="screen-content has-header has-bottom-nav">
       <div class="table-legend">
         <span class="legend-dot" style="background:#33603B"></span><span>Libertadores</span>
         <span class="legend-dot" style="background:#4D6B8A"></span><span>Sul-Americana</span>
@@ -1008,6 +1029,48 @@
         <div class="api-loading"><div class="loading-spinner"></div><p>Carregando tabela...</p></div>
       </div>
     </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-item" onclick="goTo('home')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9,22 9,12 15,12 15,22"/>
+        </svg>
+        <span>Início</span>
+      </button>
+      <button class="nav-item" onclick="goTo('calendar')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span>Agenda</span>
+      </button>
+      <button class="nav-item" onclick="goTo('realtime')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12,6 12,12 16,14"/>
+        </svg>
+        <span>Tempo Real</span>
+      </button>
+      <button class="nav-item active" onclick="goTo('table')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="3" y1="15" x2="21" y2="15"/>
+          <line x1="9" y1="9" x2="9" y2="21"/>
+        </svg>
+        <span>Classificação</span>
+      </button>
+      <button class="nav-item" onclick="goTo('profile')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>Perfil</span>
+      </button>
+    </nav>
   </div>
 
   <!-- ══════════════════════════════════════

@@ -562,9 +562,10 @@ async function loadTableData() {
 
   const teams = data.table.slice(0, 20);
   // Pre-populate cache from table payload (avoids 20 extra lookupteam calls)
+  // Table API uses strBadge (already includes /tiny), not strTeamBadge
   teams.forEach(t => {
-    if (!BADGE_CACHE[t.idTeam] && t.strTeamBadge)
-      BADGE_CACHE[t.idTeam] = t.strTeamBadge + '/tiny';
+    if (!BADGE_CACHE[t.idTeam] && t.strBadge)
+      BADGE_CACHE[t.idTeam] = t.strBadge;
   });
   await Promise.all(teams.map(t => getTeamBadge(t.idTeam)));
 
