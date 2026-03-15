@@ -408,7 +408,7 @@ async function fetchESPNSummary() {
     const ctrl = new AbortController();
     const tid  = setTimeout(() => ctrl.abort(), 15000);
     // 1) First fetch scoreboard to get the ID
-    const res  = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/scoreboard', { signal: ctrl.signal });
+    const res  = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/scoreboard?lang=pt&region=br', { signal: ctrl.signal });
     clearTimeout(tid);
     const json = await res.json();
     const event = (json.events || []).find(e =>
@@ -417,8 +417,8 @@ async function fetchESPNSummary() {
     if (!event?.id) return null;
     
     lastEspnEventId = event.id;
-    // 2) Try to get full summary
-    const sumRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/summary?event=${lastEspnEventId}`);
+    // 2) Try to get full summary, translating commentary to Portuguese
+    const sumRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/summary?event=${lastEspnEventId}&lang=pt&region=br`);
     return await sumRes.json();
   } catch { return null; }
 }
@@ -427,7 +427,7 @@ async function fetchESPNDetails() {
   try {
     const ctrl = new AbortController();
     const tid  = setTimeout(() => ctrl.abort(), 15000);
-    const res  = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/scoreboard', { signal: ctrl.signal });
+    const res  = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/scoreboard?lang=pt&region=br', { signal: ctrl.signal });
     clearTimeout(tid);
     const json = await res.json();
     const event = (json.events || []).find(e =>
@@ -479,6 +479,11 @@ function updateTimelineESPN(details, ev) {
     
     return tlGeneric(min, title, p1, fadeClass);
   }).join('');
+  
+  // Re-initialize Lucide icons immediately after injecting HTML
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
   
   if (sorted[0]?.clock?.value > lastTimelineLength) {
     lastTimelineLength = sorted[0].clock.value;
@@ -659,6 +664,10 @@ function updateTimeline(timeline) {
   
   const currentMax = Math.max(...sorted.map(s => parseInt(s.intTime) || 0));
   if (currentMax > lastTimelineLength) lastTimelineLength = currentMax;
+  
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
 }
 
 function tlGoal(time, player, assist, isFlu, text = '', fadeClass = '') {
@@ -668,7 +677,7 @@ function tlGoal(time, player, assist, isFlu, text = '', fadeClass = '') {
       <div class="timeline-time">${tStr}</div>
       <div class="timeline-connector">
         <div class="timeline-dot goal-dot">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="10" fill="none" stroke="white" stroke-width="2"/><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="white"/></svg>
+          <i data-lucide="goal" style="width:16px; height:16px; color:white;"></i>
         </div>
         <div class="timeline-line"></div>
       </div>
@@ -691,7 +700,7 @@ function tlYellow(time, player, isOpp, text = '', fadeClass = '') {
       <div class="timeline-time">${tStr}</div>
       <div class="timeline-connector">
         <div class="timeline-dot yellow-dot">
-          <svg width="10" height="13" viewBox="0 0 10 13" fill="none"><rect width="10" height="13" rx="1" fill="#F7C01B"/></svg>
+          <i data-lucide="square" fill="#F7C01B" color="#F7C01B" style="width:14px; height:14px;"></i>
         </div>
         <div class="timeline-line"></div>
       </div>
@@ -712,7 +721,7 @@ function tlRed(time, player, isOpp, text = '', fadeClass = '') {
       <div class="timeline-time">${tStr}</div>
       <div class="timeline-connector">
         <div class="timeline-dot red-dot">
-          <svg width="10" height="13" viewBox="0 0 10 13" fill="none"><rect width="10" height="13" rx="1" fill="#fff"/></svg>
+          <i data-lucide="square" fill="#fff" color="#fff" style="width:14px; height:14px;"></i>
         </div>
         <div class="timeline-line"></div>
       </div>
@@ -733,7 +742,7 @@ function tlSub(time, out, in_, text = '', fadeClass = '') {
       <div class="timeline-time">${tStr}</div>
       <div class="timeline-connector">
         <div class="timeline-dot sub-dot">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          <i data-lucide="arrow-right-left" style="width:14px; height:14px; color:white;"></i>
         </div>
         <div class="timeline-line"></div>
       </div>
@@ -752,7 +761,7 @@ function tlGeneric(time, type, text, fadeClass = '') {
       <div class="timeline-time">${tStr}</div>
       <div class="timeline-connector">
         <div class="timeline-dot kickoff-dot">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="8" fill="none" stroke="white" stroke-width="2"/><polygon points="10,8 16,12 10,16" fill="white"/></svg>
+          <i data-lucide="zap" style="width:14px; height:14px; color:white;" fill="rgba(255,255,255,0.2)"></i>
         </div>
         <div class="timeline-line"></div>
       </div>

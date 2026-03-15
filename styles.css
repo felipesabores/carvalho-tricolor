@@ -848,18 +848,22 @@ body {
   flex-shrink: 0;
 }
 .timeline-dot {
-  width: 32px; height: 32px;
+  width: 28px; height: 28px;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
+  border: 1.5px solid transparent;
+}
+.timeline-dot svg {
+  display: block;
 }
 .timeline-line { width: 2px; flex: 1; background: var(--c-surface2); min-height: 16px; margin: 3px 0; }
-.goal-dot    { background: var(--c-green); box-shadow: 0 0 12px rgba(51,96,59,0.4); }
-.yellow-dot  { background: #F7C01B; }
-.red-dot     { background: #CC0000; }
-.sub-dot     { background: #4D6B8A; }
-.opp-goal-dot{ background: #999; }
-.kickoff-dot { background: var(--c-grenade); }
+.goal-dot    { background: var(--c-green); border-color: var(--c-green); box-shadow: 0 0 12px rgba(51,96,59,0.4); }
+.yellow-dot  { background: #ffffff; border-color: #e5e5e5; }
+.red-dot     { background: #ffffff; border-color: #e5e5e5; }
+.sub-dot     { background: #4D6B8A; border-color: #4D6B8A; }
+.opp-goal-dot{ background: #999; border-color: #999; }
+.kickoff-dot { background: var(--c-surface2); border-color: var(--c-surface2); }
 
 .timeline-card {
   flex: 1;
