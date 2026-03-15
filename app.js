@@ -82,7 +82,7 @@ function toggleChange(input) {
 // ── API ──────────────────────────────────
 async function apiFetch(endpoint) {
   const ctrl  = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 8000);
+  const timer = setTimeout(() => ctrl.abort(), 15000);
   
   // To avoid CORS issues on localhost or strict environments, we can route TheSportsDB through a public CORS proxy
   const proxy = 'https://api.allorigins.win/get?url=';
@@ -376,6 +376,8 @@ async function loadLiveData(eventId) {
   if (evData?.events?.[0])        updateScoreboard(evData.events[0]);
   if (statsData?.eventstats)      updateStats(statsData.eventstats);
   
+  const ev = evData?.events?.[0];
+  
   if (espnScoreboard?.length) {
     updateTimelineESPN(espnScoreboard, ev);
   } else if (evData?.events?.[0]) {
@@ -393,7 +395,7 @@ async function loadLiveData(eventId) {
 async function fetchESPNLineups() {
   try {
     const ctrl = new AbortController();
-    const tid  = setTimeout(() => ctrl.abort(), 8000);
+    const tid  = setTimeout(() => ctrl.abort(), 15000);
     // ESPN summary endpoint contains lineups if available
     const res  = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/scoreboard', { signal: ctrl.signal });
     clearTimeout(tid);
@@ -414,7 +416,7 @@ async function fetchESPNLineups() {
 async function fetchESPNDetails() {
   try {
     const ctrl = new AbortController();
-    const tid  = setTimeout(() => ctrl.abort(), 8000);
+    const tid  = setTimeout(() => ctrl.abort(), 15000);
     const res  = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/scoreboard', { signal: ctrl.signal });
     clearTimeout(tid);
     const json = await res.json();
