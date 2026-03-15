@@ -538,16 +538,16 @@
       <div class="timeline-section">
         <h2 class="timeline-title">Lances da Partida</h2>
 
+        <div class="timeline" id="live-timeline">
+          <div class="api-loading"><div class="loading-spinner"></div><p>Carregando lances...</p></div>
+        </div>
+        
         <!-- LINEUPS TAB -->
-        <div class="lineups-section" id="realtime-lineups" style="display:none; margin: 0 20px 20px;">
+        <div class="lineups-section" id="realtime-lineups" style="display:none; margin: 20px 0 0;">
           <h3 style="font-size:12px; font-weight:800; color:var(--c-grenade); margin-bottom:10px;text-transform:uppercase;">Escalação Inicial</h3>
           <div id="lineups-list" style="background:#fff; border-radius:10px; padding:12px; border:1px solid var(--c-surface2);">
              <!-- Players injected here via JS -->
           </div>
-        </div>
-
-        <div class="timeline" id="live-timeline">
-          <div class="api-loading"><div class="loading-spinner"></div><p>Carregando lances...</p></div>
         </div>
       </div>
 

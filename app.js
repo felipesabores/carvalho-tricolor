@@ -365,38 +365,42 @@ async function loadRealtimeScreen() {
 }
 
 async function loadLiveData(eventId) {
-  const [evData, statsData, hlData, espnScoreboard, espnLineups] = await Promise.all([
+  const [evData, hlData, espnScoreboard, espnSummary] = await Promise.all([
     apiFetch(`lookupevent.php?id=${eventId}`),
-    apiFetch(`lookupeventstats.php?id=${eventId}`),
+    // apiFetch(`lookupeventstats.php?id=${eventId}`), // TheSportsDB free tier restricts stats, so we get them from ESPN
     apiFetch(`eventshighlights.php?e=${eventId}`),
     fetchESPNDetails(),
-    fetchESPNLineups()
+    fetchESPNSummary()
   ]);
 
   if (evData?.events?.[0])        updateScoreboard(evData.events[0]);
-  if (statsData?.eventstats)      updateStats(statsData.eventstats);
   
   const ev = evData?.events?.[0];
   
   if (espnScoreboard?.length) {
     updateTimelineESPN(espnScoreboard, ev);
-  } else if (evData?.events?.[0]) {
+  } else if (ev) {
     // Fallback to TheSportsDB timeline if ESPN is empty
-    const tData = await apiFetch(`lookupevent.php?id=${eventId}`);
     // Actually the lookupevent.php doesn't have timeline, lookuptimeline.php does
     const tlData = await apiFetch(`lookuptimeline.php?id=${eventId}`);
     if (tlData?.timeline) updateTimeline(tlData.timeline);
   }
   
   if (hlData?.highlights?.length) renderHighlights(hlData.highlights);
-  if (espnLineups?.length)        renderLiveLineups(espnLineups, ev);
+  
+  // ESPN summary contains both Rosters and Stats (boxscore)
+  if (espnSummary?.boxscore)      updateStatsESPN(espnSummary.boxscore);
+  if (espnSummary?.rosters)       renderLiveLineups(espnSummary.rosters, ev);
 }
 
-async function fetchESPNLineups() {
+// Global cached summary to avoid duplicate calls
+let lastEspnEventId = null;
+
+async function fetchESPNSummary() {
   try {
     const ctrl = new AbortController();
     const tid  = setTimeout(() => ctrl.abort(), 15000);
-    // ESPN summary endpoint contains lineups if available
+    // 1) First fetch scoreboard to get the ID
     const res  = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/scoreboard', { signal: ctrl.signal });
     clearTimeout(tid);
     const json = await res.json();
@@ -405,11 +409,10 @@ async function fetchESPNLineups() {
     );
     if (!event?.id) return null;
     
-    const espnEventId = event.id;
-    // Try to get lineups from rosters in summary
-    const sumRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/summary?event=${espnEventId}`);
-    const sumJson = await sumRes.json();
-    return sumJson.rosters || null;
+    lastEspnEventId = event.id;
+    // 2) Try to get full summary
+    const sumRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/summary?event=${lastEspnEventId}`);
+    return await sumRes.json();
   } catch { return null; }
 }
 
@@ -536,7 +539,14 @@ function renderLiveLineups(rosters, ev) {
     
     container.style.display = 'block';
     
-    list.innerHTML = fluRoster.map(player => {
+    // Split into starters and bench
+    const starters = fluRoster.filter(p => p.starter === true);
+    let bench = fluRoster.filter(p => !p.starter);
+    if (starters.length === 0) {
+      bench = fluRoster; // If boolean not present, just list all
+    }
+    
+    const renderPlayer = (player) => {
       const p = player.athlete || player;
       const name = p.displayName || p.shortName || p.fullName || '—';
       const num = player.jersey ? `#${player.jersey}` : '';
@@ -549,9 +559,52 @@ function renderLiveLineups(rosters, ev) {
         </div>
         <span style="font-size:10px; color:var(--c-input-text); font-weight:700;">${pos}</span>
       </div>`;
-    }).join('');
+    };
+    
+    let html = '';
+    if (starters.length > 0) {
+      html += `<div style="font-size:10px; font-weight:800; color:var(--c-text-muted); text-transform:uppercase; margin-bottom:6px;">Titulares</div>`;
+      html += starters.map(renderPlayer).join('');
+      if (bench.length > 0) {
+        html += `<div style="font-size:10px; font-weight:800; color:var(--c-text-muted); text-transform:uppercase; margin:16px 0 6px;">Banco de Reservas</div>`;
+        html += bench.map(renderPlayer).join('');
+      }
+    } else {
+      html += fluRoster.map(renderPlayer).join('');
+    }
+    
+    list.innerHTML = html;
   } catch (e) {
     console.warn('Error rendering lineups:', e);
+  }
+}
+
+function updateStatsESPN(boxscore) {
+  if (!boxscore?.teams) return;
+  
+  const fluStatsObj = boxscore.teams.find(t => t.team?.id === '3445');
+  const statsArr = fluStatsObj?.statistics || [];
+  
+  const getStat = (name) => {
+    const s = statsArr.find(x => x.name === name);
+    return s ? s.displayValue : null;
+  };
+  
+  const shots = document.getElementById('stat-shots');
+  const poss  = document.getElementById('stat-possession');
+  const corn  = document.getElementById('stat-corners');
+
+  if (shots) {
+    const v = getStat('totalShots');
+    shots.textContent = v ? v : '0';
+  }
+  if (poss) {
+    const p = getStat('possessionPct');
+    poss.textContent  = p ? p + '%' : '—';
+  }
+  if (corn) {
+    const c = getStat('cornerKicks');
+    corn.textContent  = c ? c : '0';
   }
 }
 
