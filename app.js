@@ -382,15 +382,22 @@ async function loadLiveData(eventId) {
   const ev = evData?.events?.[0];
   
   // Prefer ESPN's rich commentary play-by-play. Fallback to basic scoreboard events.
+  let espnSuccess = false;
   if (espnSummary?.commentary?.length) {
-    updateTimelineESPN(espnSummary.commentary, ev);
+    espnSuccess = updateTimelineESPN(espnSummary.commentary, ev);
   } else if (espnScoreboard?.length) {
-    updateTimelineESPN(espnScoreboard, ev);
-  } else if (ev) {
+    espnSuccess = updateTimelineESPN(espnScoreboard, ev);
+  }
+  
+  if (!espnSuccess && ev) {
     // Fallback to TheSportsDB timeline if ESPN is empty
-    // Actually the lookupevent.php doesn't have timeline, lookuptimeline.php does
     const tlData = await apiFetch(`lookuptimeline.php?id=${eventId}`);
-    if (tlData?.timeline) updateTimeline(tlData.timeline);
+    if (tlData?.timeline) {
+      updateTimeline(tlData.timeline);
+    } else {
+      const container = document.getElementById('live-timeline');
+      if (container) container.innerHTML = `<p style="padding:16px;color:var(--c-text-muted);text-align:center">Sem lances disponíveis</p>`;
+    }
   }
   
   if (hlData?.highlights?.length) renderHighlights(hlData.highlights);
@@ -439,11 +446,8 @@ async function fetchESPNDetails() {
 
 function updateTimelineESPN(details, ev) {
   const container = document.getElementById('live-timeline');
-  if (!container) return;
-  if (!details?.length) {
-    container.innerHTML = `<p style="padding:16px;color:var(--c-text-muted);text-align:center">Sem lances disponíveis</p>`;
-    return;
-  }
+  if (!container) return false;
+  if (!details?.length) return false;
 
   // Determine which ESPN team ID is Fluminense (home team ID = 3445)
   const FLU_ESPN = '3445';
@@ -480,14 +484,11 @@ function updateTimelineESPN(details, ev) {
     return tlGeneric(min, title, p1, fadeClass);
   }).join('');
   
-  // Re-initialize Lucide icons immediately after injecting HTML
   if (window.lucide) {
     window.lucide.createIcons();
   }
   
-  if (sorted[0]?.clock?.value > lastTimelineLength) {
-    lastTimelineLength = sorted[0].clock.value;
-  }
+  return true;
 }
 
 async function updateScoreboard(ev, liveClock = null) {
