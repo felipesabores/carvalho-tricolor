@@ -2,11 +2,16 @@
    CARVALHO TRICOLOR · App + TheSportsDB API
    ════════════════════════════════════════ */
 
-const API      = 'https://www.thesportsdb.com/api/v1/json/123';
-const FLU_ID   = '134296';
+const API       = 'https://www.thesportsdb.com/api/v1/json/123';
+const FLU_ID    = '134296';
+const LEAGUE_ID = '4351'; // Brasileirão Série A
 const FLU_BADGE = 'https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg';
 
+const RSS_URL = 'https://news.google.com/rss/search?q=Fluminense+futebol&hl=pt-BR&gl=BR&ceid=BR:pt-419';
+const RSS_API = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
+
 const BADGE_CACHE = { [FLU_ID]: FLU_BADGE };
+const NEWS_CACHE  = {};
 
 const ROUTES = {
   login:    'screen-login',
@@ -15,7 +20,11 @@ const ROUTES = {
   realtime: 'screen-realtime',
   article:  'screen-article',
   profile:  'screen-profile',
+  table:    'screen-table',
+  squad:    'screen-squad',
 };
+
+let newsLoaded = false;
 
 let currentScreen = 'login';
 let liveEventId   = null;
@@ -38,9 +47,11 @@ function goTo(name) {
   const content = to.querySelector('.screen-content');
   if (content) content.scrollTop = 0;
 
-  if (name === 'home')     loadHomeData();
+  if (name === 'home')     { loadHomeData(); loadRSSNews(); }
   if (name === 'calendar') loadCalendar();
   if (name === 'realtime') { startClock(); if (liveEventId) loadLiveData(liveEventId); }
+  if (name === 'table')    loadTableData();
+  if (name === 'squad')    loadSquadData();
 }
 
 // ── CLOCK ────────────────────────────────
@@ -278,15 +289,17 @@ function selectEvent(eventId) {
 
 // ── REALTIME ─────────────────────────────
 async function loadLiveData(eventId) {
-  const [evData, statsData, timelineData] = await Promise.all([
+  const [evData, statsData, timelineData, hlData] = await Promise.all([
     apiFetch(`lookupevent.php?id=${eventId}`),
     apiFetch(`lookupeventstats.php?id=${eventId}`),
     apiFetch(`lookuptimeline.php?id=${eventId}`),
+    apiFetch(`eventshighlights.php?e=${eventId}`),
   ]);
 
   if (evData?.events?.[0])       updateScoreboard(evData.events[0]);
   if (statsData?.eventstats)     updateStats(statsData.eventstats);
   if (timelineData?.timeline)    updateTimeline(timelineData.timeline);
+  if (hlData?.highlights?.length) renderHighlights(hlData.highlights);
 }
 
 async function updateScoreboard(ev) {
@@ -434,6 +447,215 @@ function tlGeneric(time, type, player) {
     </div>`;
 }
 
+// ── HIGHLIGHTS ───────────────────────────
+function renderHighlights(highlights) {
+  const section = document.getElementById('highlights-section');
+  const list    = document.getElementById('highlights-list');
+  if (!section || !list || !highlights.length) return;
+
+  list.innerHTML = highlights.map(h => {
+    const ytId  = h.strVideo?.match(/(?:v=|youtu\.be\/)([^&?/]+)/)?.[1];
+    const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '';
+    const title = h.strFilename || 'Highlight';
+    return `
+      <a class="highlight-card" href="${h.strVideo}" target="_blank" rel="noopener">
+        <div class="highlight-thumb">
+          ${thumb
+            ? `<img src="${thumb}" alt="${title}" onerror="this.parentElement.style.background='#2a1a22'">`
+            : '<div class="highlight-no-thumb"></div>'}
+          <div class="highlight-play">▶</div>
+        </div>
+        <p class="highlight-title">${title}</p>
+      </a>`;
+  }).join('');
+
+  section.classList.remove('hidden');
+}
+
+// ── RSS NEWS ─────────────────────────────
+async function loadRSSNews() {
+  if (newsLoaded) return;
+  newsLoaded = true;
+
+  const list = document.getElementById('news-list');
+  if (!list) return;
+
+  const BG = ['#6E182C','#33603B','#4D0A21','#4D6B8A','#6E182C'];
+  const GLOBE_ICON = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
+
+  try {
+    const res  = await fetch(RSS_API);
+    const data = await res.json();
+    if (!data?.items?.length) throw new Error('empty');
+
+    const items = data.items.slice(0, 5);
+    items.forEach((item, i) => { NEWS_CACHE[i] = item; });
+
+    list.innerHTML = items.map((item, i) => {
+      const title  = item.title.replace(/ [-–] [^-–]+$/, '');
+      const source = item.title.match(/ [-–] ([^-–]+)$$/)?.[1] || item.author || 'Notícia';
+      const date   = new Date(item.pubDate);
+      const dateStr = `${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}`;
+      const bg = BG[i % BG.length];
+      return `
+        <div class="news-card" onclick="openArticle(${i})">
+          <div class="news-img-wrap">
+            <div class="news-img" style="background:linear-gradient(135deg,${bg} 0%,${bg}aa 100%);">
+              ${GLOBE_ICON}
+            </div>
+          </div>
+          <div class="news-content">
+            <span class="news-tag">${source}</span>
+            <h3 class="news-title-card">${title}</h3>
+            <p class="news-desc">${dateStr}</p>
+            <a class="news-link" onclick="openArticle(${i}); return false;">Ler mais →</a>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    newsLoaded = false; // allow retry
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📰</div><p>Não foi possível carregar as notícias</p></div>`;
+  }
+}
+
+function openArticle(idx) {
+  const item = NEWS_CACHE[idx];
+  if (!item) { goTo('article'); return; }
+
+  const title  = item.title.replace(/ [-–] [^-–]+$/, '');
+  const source = item.title.match(/ [-–] ([^-–]+)$$/)?.[1] || item.author || '';
+  const date   = new Date(item.pubDate);
+  const dateStr = date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const desc   = item.description?.replace(/<[^>]*>/g, '') || 'Clique abaixo para ler a notícia completa.';
+
+  setText('article-tag',       source || 'Notícia');
+  setText('article-title',     title);
+  setText('article-date',      dateStr);
+  setText('article-source',    `Por ${source}`);
+  setText('article-body-text', desc);
+
+  const tagsEl = document.getElementById('article-tags');
+  if (tagsEl) {
+    const tags = title.split(' ').filter(w => w.length > 5).slice(0, 4);
+    tagsEl.innerHTML = tags.map(t => `<span class="tag-chip">${t}</span>`).join('');
+  }
+
+  const btn = document.getElementById('article-read-btn');
+  if (btn) btn.onclick = () => window.open(item.link, '_blank');
+
+  goTo('article');
+}
+
+// ── TABELA ───────────────────────────────
+async function loadTableData() {
+  const container = document.getElementById('table-content');
+  if (!container || container.dataset.loaded) return;
+
+  container.innerHTML = `<div class="api-loading"><div class="loading-spinner"></div><p>Carregando tabela...</p></div>`;
+
+  const data = await apiFetch(`lookuptable.php?l=${LEAGUE_ID}&s=2026`);
+  if (!data?.table?.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><p>Tabela não disponível</p></div>`;
+    return;
+  }
+
+  const teams = data.table.slice(0, 20);
+  await Promise.all(teams.map(t => getTeamBadge(t.idTeam)));
+
+  container.dataset.loaded = '1';
+  container.innerHTML = `
+    <table class="standings-table">
+      <thead>
+        <tr>
+          <th>#</th><th colspan="2">Time</th><th>P</th><th>J</th><th>V</th><th>E</th><th>D</th><th>SG</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${teams.map(t => {
+          const isFlu  = t.idTeam == FLU_ID;
+          const badge  = BADGE_CACHE[t.idTeam] || '';
+          const pos    = parseInt(t.intRank);
+          const zoneClass = pos <= 6 ? 'zone-lib' : pos <= 12 ? 'zone-sul' : pos >= 17 ? 'zone-rel' : '';
+          const sg     = parseInt(t.intGoalDifference);
+          return `
+            <tr class="${isFlu ? 'flu-row' : ''}">
+              <td class="pos-col"><span class="pos-marker ${zoneClass}">${pos}</span></td>
+              <td class="badge-col"><img src="${badge}" width="20" height="20" onerror="this.style.display='none'"/></td>
+              <td class="team-col-name">${t.strTeam}</td>
+              <td class="pts-col"><strong>${t.intPoints}</strong></td>
+              <td>${t.intPlayed}</td>
+              <td>${t.intWin}</td>
+              <td>${t.intDraw}</td>
+              <td>${t.intLoss}</td>
+              <td class="${sg > 0 ? 'sg-pos' : sg < 0 ? 'sg-neg' : ''}">${sg > 0 ? '+' + sg : sg}</td>
+            </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div style="height:20px"></div>`;
+}
+
+// ── ELENCO ───────────────────────────────
+async function loadSquadData() {
+  const container = document.getElementById('squad-content');
+  if (!container || container.dataset.loaded) return;
+
+  container.innerHTML = `<div class="api-loading"><div class="loading-spinner"></div><p>Carregando elenco...</p></div>`;
+
+  const data = await apiFetch(`lookup_all_players.php?id=${FLU_ID}`);
+  if (!data?.player?.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">👕</div><p>Elenco não disponível</p></div>`;
+    return;
+  }
+
+  const POS_MAP = {
+    'Goalkeeper': { label: 'Goleiros',        icon: '🧤', order: 0 },
+    'Defender':   { label: 'Defensores',      icon: '🛡️', order: 1 },
+    'Midfielder': { label: 'Meio-Campistas',  icon: '⚙️', order: 2 },
+    'Forward':    { label: 'Atacantes',       icon: '⚡', order: 3 },
+  };
+
+  const groups = {};
+  for (const p of data.player) {
+    const key = Object.keys(POS_MAP).find(k => (p.strPosition || '').includes(k)) || 'Midfielder';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(p);
+  }
+
+  container.dataset.loaded = '1';
+  let html = '';
+  for (const [key, { label, icon }] of Object.entries(POS_MAP)) {
+    const players = groups[key] || [];
+    if (!players.length) continue;
+    html += `
+      <div class="squad-position-header">
+        <span class="squad-pos-icon">${icon}</span>
+        <h3 class="squad-pos-label">${label}</h3>
+        <span class="squad-count">${players.length}</span>
+      </div>`;
+    html += players.map(p => {
+      const initials = p.strPlayer.split(' ').map(n => n[0]).slice(0, 2).join('');
+      const photo    = p.strCutout || p.strThumb;
+      return `
+        <div class="player-card">
+          <div class="player-photo">
+            ${photo
+              ? `<img src="${photo}" alt="${p.strPlayer}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+              : ''}
+            <div class="player-initials"${photo ? ' style="display:none"' : ''}>${initials}</div>
+          </div>
+          <div class="player-info">
+            <span class="player-name">${p.strPlayer}</span>
+            <span class="player-meta">${p.strNationality || '—'}${p.strNumber ? ' · #' + p.strNumber : ''}</span>
+          </div>
+          ${p.dateBorn ? `<span class="player-age">${new Date().getFullYear() - parseInt(p.dateBorn)} a</span>` : ''}
+        </div>`;
+    }).join('');
+  }
+
+  container.innerHTML = html + '<div style="height:20px"></div>';
+}
+
 // ── UTILS ────────────────────────────────
 function setText(id, val) {
   const el = document.getElementById(id);
@@ -449,4 +671,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const loginScreen = document.getElementById('screen-login');
   if (loginScreen) { loginScreen.style.display = 'flex'; loginScreen.classList.add('active'); }
+
+  // Pre-warm news on login screen so Home is instant
+  setTimeout(loadRSSNews, 1500);
 });

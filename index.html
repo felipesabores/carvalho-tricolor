@@ -151,54 +151,11 @@
       <section class="section">
         <div class="section-header">
           <h2 class="section-title">Últimas Notícias</h2>
-          <a href="#" class="section-link" onclick="return false;">Ver todas</a>
         </div>
-
-        <div class="news-card" onclick="goTo('article')">
-          <div class="news-img-wrap">
-            <div class="news-img" style="background: linear-gradient(135deg, #6E182C 0%, #9b2335 100%);">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5">
-                <circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/>
-              </svg>
-            </div>
-          </div>
-          <div class="news-content">
-            <span class="news-tag">Transferência</span>
-            <h3 class="news-title-card">Germán Cano renova com o Fluzão até 2027</h3>
-            <p class="news-desc">O artilheiro argentino assina extensão de contrato e garante mais duas temporadas no Laranjeiras.</p>
-            <a class="news-link" onclick="goTo('article'); return false;">Ler mais →</a>
-          </div>
-        </div>
-
-        <div class="news-card" onclick="goTo('article')">
-          <div class="news-img-wrap">
-            <div class="news-img" style="background: linear-gradient(135deg, #33603B 0%, #4a8a55 100%);">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5">
-                <path d="M12 22V12m0 0V2m0 10h10m-10 0H2"/>
-              </svg>
-            </div>
-          </div>
-          <div class="news-content">
-            <span class="news-tag" style="background:#EAF3EB; color:#33603B;">Treino</span>
-            <h3 class="news-title-card">Flu encerra preparação para o Fla-Flu</h3>
-            <p class="news-desc">Diniz comanda último treino antes do clássico com portões fechados no CT Carlos Castilho.</p>
-            <a class="news-link" onclick="goTo('article'); return false;">Ler mais →</a>
-          </div>
-        </div>
-
-        <div class="news-card" onclick="goTo('article')">
-          <div class="news-img-wrap">
-            <div class="news-img" style="background: linear-gradient(135deg, #4D0A21 0%, #7a1535 100%);">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5">
-                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/>
-              </svg>
-            </div>
-          </div>
-          <div class="news-content">
-            <span class="news-tag" style="background:#FFF0F0; color:#4D0A21;">Clássico</span>
-            <h3 class="news-title-card">Histórico favorece o Flu em Fla-Flus no Maracanã</h3>
-            <p class="news-desc">Levantamento mostra que o Tricolor tem aproveitamento superior a 60% no estádio em clássicos.</p>
-            <a class="news-link" onclick="goTo('article'); return false;">Ler mais →</a>
+        <div id="news-list">
+          <div class="api-loading">
+            <div class="loading-spinner"></div>
+            <p>Carregando notícias...</p>
           </div>
         </div>
       </section>
@@ -267,6 +224,18 @@
     </header>
 
     <main class="screen-content has-header has-bottom-nav">
+
+      <button class="table-shortcut-btn" onclick="goTo('table')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/>
+        </svg>
+        Ver Tabela do Brasileirão
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:auto">
+          <polyline points="9,18 15,12 9,6"/>
+        </svg>
+      </button>
+
       <div id="calendar-content">
 
       <!-- MONTH: MARCH -->
@@ -548,6 +517,12 @@
         </div>
       </div>
 
+      <!-- HIGHLIGHTS -->
+      <div id="highlights-section" class="hidden" style="padding: 0 16px 8px;">
+        <h2 class="timeline-title">Destaques ▶</h2>
+        <div id="highlights-list" class="highlights-scroll"></div>
+      </div>
+
       <!-- TIMELINE -->
       <div class="timeline-section">
         <h2 class="timeline-title">Lances da Partida</h2>
@@ -734,57 +709,29 @@
       <div class="article-hero">
         <div class="article-hero-img">
           <div class="article-hero-overlay"></div>
-          <div class="article-hero-badge">Transferência</div>
+          <div class="article-hero-badge" id="article-tag">Notícia</div>
         </div>
       </div>
 
       <div class="article-body">
         <div class="article-meta">
-          <span class="article-date">14 de março de 2026 · 09:45</span>
-          <span class="article-author">Por Redação CT</span>
+          <span class="article-date" id="article-date">—</span>
+          <span class="article-author" id="article-source">—</span>
         </div>
 
-        <h1 class="article-title">Germán Cano renova com o Fluzão até 2027 e vira ídolo eterno</h1>
+        <h1 class="article-title" id="article-title">Carregando...</h1>
 
-        <div class="article-share">
-          <span class="share-label">Compartilhar:</span>
-          <button class="share-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
-              <polyline points="16 6 12 2 8 6"/>
-              <line x1="12" y1="2" x2="12" y2="15"/>
-            </svg>
-          </button>
-          <button class="share-btn">❤️</button>
-        </div>
+        <p class="article-text" id="article-body-text"></p>
 
-        <p class="article-text">
-          O Fluminense Football Club e o centroavante argentino <strong>Germán Cano</strong> chegaram a um acordo e oficializaram nesta sexta-feira a renovação de contrato do atleta até <strong>dezembro de 2027</strong>. A notícia foi comemorada efusivamente pela torcida tricolor nas redes sociais.
-        </p>
+        <button id="article-read-btn" class="btn-primary btn-block" style="margin: 16px 0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          Ler notícia completa
+        </button>
 
-        <p class="article-text">
-          Cano, que chegou ao clube em 2022 e rapidamente se tornou um dos maiores ídolos da história do Flu, disputou mais de <strong>150 partidas</strong> com a camisa tricolor e foi peça fundamental na conquista da <em>Copa Libertadores de 2023</em>, sendo artilheiro do torneio.
-        </p>
-
-        <blockquote class="article-quote">
-          "Estou muito feliz de seguir aqui. Este clube me deu tudo, a torcida me abraçou desde o primeiro dia. Não poderia estar em outro lugar."
-          <footer>— Germán Cano, em entrevista ao site oficial</footer>
-        </blockquote>
-
-        <p class="article-text">
-          A diretoria do Fluminense ressaltou que a renovação faz parte de um projeto de <strong>valorização dos ídolos</strong> que vestem a camisa tricolor com dedicação. O técnico Diniz também se manifestou positivamente sobre a permanência do artilheiro.
-        </p>
-
-        <p class="article-text">
-          Com o novo vínculo, Cano poderá atingir a marca de artilheiro histórico do clube, superando o lendário Romário, caso mantenha o ritmo de gols das últimas temporadas.
-        </p>
-
-        <div class="article-tags">
-          <span class="tag-chip">Cano</span>
-          <span class="tag-chip">Renovação</span>
-          <span class="tag-chip">Mercado</span>
-          <span class="tag-chip">Fluminense</span>
-        </div>
+        <div class="article-tags" id="article-tags"></div>
       </div>
 
       <!-- RELATED NEWS -->
@@ -860,6 +807,20 @@
             <span class="pstat-label">Anos de app</span>
           </div>
         </div>
+      </div>
+
+      <!-- ELENCO SHORTCUT -->
+      <div class="squad-promo" onclick="goTo('squad')">
+        <div class="squad-promo-badge">
+          <img src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg" alt="FLU" />
+        </div>
+        <div class="squad-promo-text">
+          <span>Elenco Completo</span>
+          <p>Ver todos os jogadores do Flu</p>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6E182C" stroke-width="2.5">
+          <polyline points="9,18 15,12 9,6"/>
+        </svg>
       </div>
 
       <!-- NOTIFICATION PREFERENCES -->
@@ -1021,6 +982,60 @@
         <span>Perfil</span>
       </button>
     </nav>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 7: TABELA DO BRASILEIRÃO
+  ══════════════════════════════════════ -->
+  <div class="screen" id="screen-table">
+    <header class="app-header">
+      <div class="header-back" onclick="goTo('calendar')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+          <polyline points="15,18 9,12 15,6"/>
+        </svg>
+      </div>
+      <h1 class="header-title">Brasileirão 2026</h1>
+      <div style="width:44px"></div>
+    </header>
+
+    <main class="screen-content has-header">
+      <div class="table-legend">
+        <span class="legend-dot" style="background:#33603B"></span><span>Libertadores</span>
+        <span class="legend-dot" style="background:#4D6B8A"></span><span>Sul-Americana</span>
+        <span class="legend-dot" style="background:#CC0000"></span><span>Rebaixamento</span>
+      </div>
+      <div id="table-content">
+        <div class="api-loading"><div class="loading-spinner"></div><p>Carregando tabela...</p></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 8: ELENCO COMPLETO
+  ══════════════════════════════════════ -->
+  <div class="screen" id="screen-squad">
+    <header class="app-header">
+      <div class="header-back" onclick="goTo('profile')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+          <polyline points="15,18 9,12 15,6"/>
+        </svg>
+      </div>
+      <h1 class="header-title">Elenco do Flu</h1>
+      <div style="width:44px"></div>
+    </header>
+
+    <main class="screen-content has-header">
+      <div class="squad-header-banner">
+        <img src="https://assets-fluminense.s3.amazonaws.com/assets/fluminense-d99518426e66fb3576697742f31b8b1d2b8b53d34f409072c52711764f1bdf32.svg" alt="Fluminense" class="squad-banner-badge" />
+        <div>
+          <h2 class="squad-banner-name">Fluminense FC</h2>
+          <p class="squad-banner-sub">Temporada 2026</p>
+        </div>
+      </div>
+      <div id="squad-content">
+        <div class="api-loading"><div class="loading-spinner"></div><p>Carregando elenco...</p></div>
+      </div>
+    </main>
   </div>
 
   <script src="app.js"></script>
