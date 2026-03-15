@@ -377,7 +377,7 @@ async function loadLiveData(eventId) {
   if (evData?.events?.[0]) {
     // Check if ESPN has a live ticking clock in the header
     const liveClock = espnSummary?.header?.competitions?.[0]?.status?.displayClock;
-    updateScoreboard(evData.events[0], liveClock);
+    updateScoreboard(evData.events[0], liveClock, espnSummary);
   }
   
   const ev = evData?.events?.[0];
@@ -497,10 +497,21 @@ function updateTimelineESPN(details, ev) {
   return true;
 }
 
-async function updateScoreboard(ev, liveClock = null) {
+async function updateScoreboard(ev, liveClock = null, espnSummary = null) {
   const isFluHome = ev.idHomeTeam == FLU_ID;
-  const fluScore  = isFluHome ? (ev.intHomeScore ?? '—') : (ev.intAwayScore ?? '—');
-  const oppScore  = isFluHome ? (ev.intAwayScore ?? '—') : (ev.intHomeScore ?? '—');
+  let fluScore  = isFluHome ? (ev.intHomeScore ?? '—') : (ev.intAwayScore ?? '—');
+  let oppScore  = isFluHome ? (ev.intAwayScore ?? '—') : (ev.intHomeScore ?? '—');
+  
+  // Override with Live ESPN Score if available (TheSportsDB is often delayed)
+  const espnComps = espnSummary?.header?.competitions?.[0]?.competitors;
+  if (espnComps?.length === 2) {
+    const fluEspnId = '3445';
+    const fluMatch = espnComps.find(c => c.team?.id === fluEspnId);
+    const oppMatch = espnComps.find(c => c.team?.id !== fluEspnId);
+    if (fluMatch && fluMatch.score) fluScore = fluMatch.score;
+    if (oppMatch && oppMatch.score) oppScore = oppMatch.score;
+  }
+  
   const oppId     = isFluHome ? ev.idAwayTeam : ev.idHomeTeam;
   const oppName   = isFluHome ? ev.strAwayTeam : ev.strHomeTeam;
 
