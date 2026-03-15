@@ -83,8 +83,14 @@ function toggleChange(input) {
 async function apiFetch(endpoint) {
   const ctrl  = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 8000);
+  
+  // To avoid CORS issues on localhost or strict environments, we can route TheSportsDB through a public CORS proxy
+  // Note: For production on Vercel, it sometimes works directly, but a proxy is safer for static apps.
+  const proxy = 'https://api.allorigins.win/raw?url=';
+  const url = `${proxy}${encodeURIComponent(API + '/' + endpoint)}`;
+  
   try {
-    const res = await fetch(`${API}/${endpoint}`, { signal: ctrl.signal });
+    const res = await fetch(url, { signal: ctrl.signal });
     clearTimeout(timer);
     if (!res.ok) throw new Error(res.status);
     return await res.json();
@@ -365,8 +371,16 @@ async function loadLiveData(eventId) {
   if (evData?.events?.[0])        updateScoreboard(evData.events[0]);
   if (statsData?.eventstats)      updateStats(statsData.eventstats);
   
-  const ev = evData?.events?.[0];
-  if (espnScoreboard?.length)     updateTimelineESPN(espnScoreboard, ev);
+  if (espnScoreboard?.length) {
+    updateTimelineESPN(espnScoreboard, ev);
+  } else if (evData?.events?.[0]) {
+    // Fallback to TheSportsDB timeline if ESPN is empty
+    const tData = await apiFetch(`lookupevent.php?id=${eventId}`);
+    // Actually the lookupevent.php doesn't have timeline, lookuptimeline.php does
+    const tlData = await apiFetch(`lookuptimeline.php?id=${eventId}`);
+    if (tlData?.timeline) updateTimeline(tlData.timeline);
+  }
+  
   if (hlData?.highlights?.length) renderHighlights(hlData.highlights);
   if (espnLineups?.length)        renderLiveLineups(espnLineups, ev);
 }
@@ -382,9 +396,13 @@ async function fetchESPNLineups() {
     const event = (json.events || []).find(e =>
       e.competitions?.[0]?.competitors?.some(c => c.team?.id === '3445')
     );
-    // In ESPN scoreboard endpoint, lineups aren't always directly in competitors for live matches
-    // But let's try to extract from competitors if they have a 'roster' or 'lineup' array inside
-    return event?.competitions?.[0]?.competitors || null;
+    if (!event?.id) return null;
+    
+    const espnEventId = event.id;
+    // Try to get lineups from rosters in summary
+    const sumRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/summary?event=${espnEventId}`);
+    const sumJson = await sumRes.json();
+    return sumJson.rosters || null;
   } catch { return null; }
 }
 
@@ -494,39 +512,40 @@ function triggerGoalAnimation(scorerName) {
   }, 3500);
 }
 
-function renderLiveLineups(competitors, ev) {
+function renderLiveLineups(rosters, ev) {
   const container = document.getElementById('realtime-lineups');
   const list = document.getElementById('lineups-list');
-  if (!container || !list || !competitors?.length) return;
+  if (!container || !list || !rosters?.length) return;
   
-  // ESPN team 3445 is Fluminense
-  const fluComp = competitors.find(c => c.team?.id === '3445');
-  const oppComp = competitors.find(c => c.team?.id !== '3445');
-  
-  // In some ESPN payloads, linesups are in c.roster or c.probables
-  const fluRoster = fluComp?.roster || fluComp?.probables || [];
-  
-  if (fluRoster.length === 0) {
-    container.style.display = 'none';
-    return;
-  }
-  
-  container.style.display = 'block';
-  
-  list.innerHTML = fluRoster.map(player => {
-    const p = player.athlete || player;
-    const name = p.displayName || p.shortName || '—';
-    const num = player.jersey ? `#${player.jersey}` : '';
-    const pos = player.position?.abbreviation || '';
+  try {
+    // ESPN team 3445 is Fluminense
+    const fluRosterObj = rosters.find(r => r.team?.id === '3445');
+    const fluRoster = fluRosterObj?.roster || fluRosterObj?.probables || [];
     
-    return `<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--c-surface2);">
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span style="font-size:10px; font-weight:800; color:var(--c-surface2); width:16px;">${num}</span>
-        <span style="font-size:12px; font-weight:600; color:var(--c-text);">${name}</span>
-      </div>
-      <span style="font-size:10px; color:var(--c-input-text); font-weight:700;">${pos}</span>
-    </div>`;
-  }).join('');
+    if (fluRoster.length === 0) {
+      container.style.display = 'none';
+      return;
+    }
+    
+    container.style.display = 'block';
+    
+    list.innerHTML = fluRoster.map(player => {
+      const p = player.athlete || player;
+      const name = p.displayName || p.shortName || p.fullName || '—';
+      const num = player.jersey ? `#${player.jersey}` : '';
+      const pos = player.position?.abbreviation || '';
+      
+      return `<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--c-surface2);">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:10px; font-weight:800; color:var(--c-surface2); width:16px;">${num}</span>
+          <span style="font-size:12px; font-weight:600; color:var(--c-text);">${name}</span>
+        </div>
+        <span style="font-size:10px; color:var(--c-input-text); font-weight:700;">${pos}</span>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    console.warn('Error rendering lineups:', e);
+  }
 }
 
 function updateStats(stats) {
