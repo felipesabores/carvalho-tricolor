@@ -85,15 +85,20 @@ async function apiFetch(endpoint) {
   const timer = setTimeout(() => ctrl.abort(), 8000);
   
   // To avoid CORS issues on localhost or strict environments, we can route TheSportsDB through a public CORS proxy
-  // Note: For production on Vercel, it sometimes works directly, but a proxy is safer for static apps.
-  const proxy = 'https://api.allorigins.win/raw?url=';
+  const proxy = 'https://api.allorigins.win/get?url=';
   const url = `${proxy}${encodeURIComponent(API + '/' + endpoint)}`;
   
   try {
     const res = await fetch(url, { signal: ctrl.signal });
     clearTimeout(timer);
     if (!res.ok) throw new Error(res.status);
-    return await res.json();
+    
+    // allorigins wraps the response in a "contents" field as a JSON string
+    const data = await res.json();
+    if (data.contents) {
+      return JSON.parse(data.contents);
+    }
+    return null;
   } catch (e) {
     clearTimeout(timer);
     console.warn('[API]', endpoint, e.message);
