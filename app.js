@@ -90,8 +90,9 @@ async function apiFetch(endpoint) {
 async function getTeamBadge(teamId) {
   if (BADGE_CACHE[teamId]) return BADGE_CACHE[teamId];
   const data = await apiFetch(`lookupteam.php?id=${teamId}`);
-  const badge = (data?.teams?.[0]?.strTeamBadge || '') + '/tiny';
-  BADGE_CACHE[teamId] = badge;
+  const raw  = data?.teams?.[0]?.strTeamBadge;
+  const badge = raw ? raw + '/tiny' : '';
+  if (badge) BADGE_CACHE[teamId] = badge;
   return badge;
 }
 
@@ -560,6 +561,11 @@ async function loadTableData() {
   }
 
   const teams = data.table.slice(0, 20);
+  // Pre-populate cache from table payload (avoids 20 extra lookupteam calls)
+  teams.forEach(t => {
+    if (!BADGE_CACHE[t.idTeam] && t.strTeamBadge)
+      BADGE_CACHE[t.idTeam] = t.strTeamBadge + '/tiny';
+  });
   await Promise.all(teams.map(t => getTeamBadge(t.idTeam)));
 
   container.dataset.loaded = '1';
